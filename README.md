@@ -4,7 +4,7 @@
 
 ### The Enterprise Trust Fabric — Secure • Orchestrate • Automate
 
-[![Release](https://img.shields.io/badge/Release-v1.0.0-2562EB?style=flat-square)](https://github.com/cairn-trust-fabric/cairn/releases)
+[![Release](https://img.shields.io/badge/Release-v2.1.0-2562EB?style=flat-square)](https://github.com/cairn-trust-fabric/cairn/releases)
 [![Platform](https://img.shields.io/badge/Platform-Windows%20x64%20%7C%20Linux%20Containers-14C8A6?style=flat-square)](https://cairnetp.com)
 [![Architecture](https://img.shields.io/badge/Architecture-Dual--Runtime%20Sandbox-7C5AED?style=flat-square)](https://cairnetp.com/#architecture)
 [![Compliance](https://img.shields.io/badge/Compliance-EU%20AI%20Act%20%7C%20NIST%20AI%20RMF%20%7C%20SOC%202-061220?style=flat-square)](https://cairnetp.com/compliance.html)
@@ -86,18 +86,18 @@ CAIRN Trust Fabric binaries are packaged and signed via official GitHub Releases
 
 1. **Download the Latest Release**:
    Download the distribution package from [GitHub Releases](https://github.com/cairn-trust-fabric/cairn/releases/latest):
-   * `cairn-windows-x64.exe`
+   * `CAIRN.Trust.Fabric.Setup.2.1.0.exe`
    * `SHA256SUMS.txt`
 
 2. **Verify Binary Integrity**:
    Verify cryptographic hash matching the release manifest:
    ```powershell
-   Get-FileHash .\cairn-windows-x64.exe -Algorithm SHA256
+   Get-FileHash .\CAIRN.Trust.Fabric.Setup.2.1.0.exe -Algorithm SHA256
    ```
 
 3. **Initialize the Trust Fabric Runtime**:
    ```powershell
-   .\cairn-windows-x64.exe --help
+   .\CAIRN.Trust.Fabric.Setup.2.1.0.exe --help
    ```
 
 ---
