@@ -4,7 +4,7 @@
 
 ### The Enterprise Trust Fabric — Secure • Orchestrate • Automate
 
-[![Release](https://img.shields.io/badge/Release-v2.1.0-2562EB?style=flat-square)](https://github.com/cairn-trust-fabric/cairn/releases)
+[![Release](https://img.shields.io/badge/Release-v2.1.1-2562EB?style=flat-square)](https://github.com/cairn-trust-fabric/cairn/releases)
 [![Platform](https://img.shields.io/badge/Platform-Windows%20x64%20%7C%20Linux%20Containers-14C8A6?style=flat-square)](https://cairnetp.com)
 [![Architecture](https://img.shields.io/badge/Architecture-Dual--Runtime%20Sandbox-7C5AED?style=flat-square)](https://cairnetp.com/#architecture)
 [![Compliance](https://img.shields.io/badge/Compliance-EU%20AI%20Act%20%7C%20NIST%20AI%20RMF%20%7C%20SOC%202-061220?style=flat-square)](https://cairnetp.com/compliance.html)
@@ -23,7 +23,7 @@ CAIRN inserts a deterministic governance and dual-runtime verification plane bet
 
 **CAIRN Trust Fabric** is an enterprise-grade governance and execution plane designed to bring deterministic control, cryptographic verification, and hardware-isolated execution to artificial intelligence systems.
 
-As organizations deploy autonomous AI agents, coding copilots, and multi-model workflows, they encounter a critical structural problem: **probabilistic language models cannot guarantee safety, idempotency, or policy adherence at runtime**. 
+As organisations deploy autonomous AI agents, coding copilots, and multi-model workflows, they encounter a critical structural problem: **probabilistic language models cannot guarantee safety, idempotency, or policy adherence at runtime**. 
 
 CAIRN resolves this by operating as an unbypassable intermediary layer:
 * **Default-Deny Ingress**: Intercepts every tool invocation, shell command, code execution request, and outbound network attempt before host exposure.
@@ -59,7 +59,7 @@ The stacked cairn mark represents the 4-tier execution architecture:
 ```
 
 1. **Tier 1: Intent & Ingress Gate** — Ingests user and agent intent, validates parameter schemas, performs Abstract Syntax Tree (AST) parsing, and filters prompt injection vectors.
-2. **Tier 2: Policy & Governance Engine** — Evaluates organizational policies in microseconds, applying credential redaction, egress domain whitelisting, and strict least-privilege RBAC.
+2. **Tier 2: Policy & Governance Engine** — Evaluates organisational policies in microseconds, applying credential redaction, egress domain whitelisting, and strict least-privilege RBAC.
 3. **Tier 3: Dual-Runtime Sandbox Execution** — Dynamically routes workloads to read-only Linux Docker containers or isolated Windows Sandbox Hyper-V micro-VMs.
 4. **Tier 4: Cryptographic Evidence Ledger** — Generates signed SHA-256 decision records, state-delta hashes, and real-time SIEM event streams.
 
@@ -75,30 +75,44 @@ Every recommendation and automated action is graded across 6 deterministic assur
 | **1** | `[INSPECTED]` | **Static Checked** | AST syntax validation, secret regex scan, and boundary parsing. |
 | **2** | `[ISOLATED]` | **Sandbox Executed** | Ephemeral container execution with read-only root and zero network egress. |
 | **3** | `[OBSERVED]` | **Behaviour Checked** | Memory, disk delta, and network telemetry verified clean. |
-| **4** | `[REPRODUCIBLE]` | **Deterministic** | Multirun output verified to produce identical results across independent seeds. |
+| **4** | `[REPRODUCIBLE]` | **Deterministic** | Repeated runs verified to produce identical results across independent seeds. |
 | **5** | `[VERIFIED]` | **Idempotent** | State mutations proven safe to repeat without system side-effects. |
 
 ---
 
 ## Quickstart
 
-CAIRN Trust Fabric binaries are packaged and signed via official GitHub Releases.
+1. **Download the latest release** from [GitHub Releases](https://github.com/cairn-trust-fabric/cairn/releases/latest). Take the installer, `SHA256SUMS.txt`, `SHA256SUMS.txt.sig` and `verify-release.cjs`.
 
-1. **Download the Latest Release**:
-   Download the distribution package from [GitHub Releases](https://github.com/cairn-trust-fabric/cairn/releases/latest):
-   * `CAIRN.Trust.Fabric.Setup.2.1.0.exe`
-   * `SHA256SUMS.txt`
+2. **Verify the download before installing**. The verifier is a single dependency-free script; you do not need to install or trust CAIRN to run it.
 
-2. **Verify Binary Integrity**:
-   Verify cryptographic hash matching the release manifest:
    ```powershell
-   Get-FileHash .\CAIRN.Trust.Fabric.Setup.2.1.0.exe -Algorithm SHA256
+   node verify-release.cjs
    ```
 
-3. **Initialize the Trust Fabric Runtime**:
-   ```powershell
-   .\CAIRN.Trust.Fabric.Setup.2.1.0.exe --help
-   ```
+   It confirms that every file matches the hash recorded when it was built, and that the hash manifest carries a valid signature from the key that signed previous CAIRN releases.
+
+3. **Run the installer.** Read the note below on the Windows warning first.
+
+---
+
+## Windows will warn you about this download
+
+Windows will say **"Windows protected your PC"**. That is expected, and you should know why before deciding what to do about it.
+
+That check looks for a code-signing certificate issued by a certificate authority. **CAIRN does not have one** — it is a recurring cost the project has not taken on. The warning means *"this publisher has not paid for an identity check"*, not *"this file is dangerous"*, and the wording does not distinguish the two.
+
+We are not asking you to take that on trust. Verify the download instead.
+
+**What the Ed25519 verification gives you:**
+* **Tamper evidence** — a corrupted download, an altered mirror or disk rot all fail the check.
+* **Continuity of publisher** — this release is signed by the same key that signed the last one. This is trust-on-first-use, the same model as an SSH host key.
+
+**What it does not give you:**
+* **Proof of who holds the signing key.** It is a self-published key, not a CA certificate — anyone can generate one. Before trusting a *first* download, compare the fingerprint the verifier prints against the one published in this repository, which is somewhere a download page cannot change.
+* **Suppression of the Windows warning.** Only a CA certificate does that, and there is not one.
+
+**There is no automatic update**, deliberately. An updater that installs unsigned code with no certificate to check against is a worse problem than not having an updater, so it is sequenced behind code signing. To update, download again and re-run the verifier.
 
 ---
 
@@ -118,11 +132,21 @@ For comprehensive compliance matrices and documentation, visit [cairnetp.com/com
 
 ## Binary Integrity & Verification
 
-All official CAIRN binaries are compiled via automated signed GitHub Actions runners and cryptographically hashed:
+Every release ships a SHA-256 manifest of its installers, an Ed25519 signature over that manifest, the public key, and the verifier that checks both. See [Windows will warn you about this download](#windows-will-warn-you-about-this-download) for what that establishes and what it does not.
 
 * **Official Domain**: [https://cairnetp.com](https://cairnetp.com)
 * **Publisher**: CAIRN ETP
 * **Security Policy**: See [SECURITY.md](SECURITY.md)
+
+### Release signing key
+
+This is the fingerprint `verify-release.cjs` prints. It is published **here**, in the repository, rather than only on the release page — a public key served from the same page as the installer is worth exactly as much as that page.
+
+```
+Ed25519  SHA-256  c3b71550dccd03e3503936237a8658b8b773af74843e326e21fdce790c9b7394
+```
+
+If the verifier prints a different fingerprint, stop and report it via [SECURITY.md](SECURITY.md).
 
 ---
 
@@ -130,7 +154,7 @@ All official CAIRN binaries are compiled via automated signed GitHub Actions run
 
 CAIRN Trust Fabric is distributed as open documentation, architecture, and issue tracking with proprietary compiled runtime binaries.
 
-For multi-node enterprise licenses, sovereign air-gapped deployments, and custom LLM sandbox integrations, visit the official portal:
+For multi-node enterprise licences, sovereign air-gapped deployments, and custom LLM sandbox integrations, visit the official portal:
 * **Licensing Overview**: [cairnetp.com/licensing.html](https://cairnetp.com/licensing.html)
 * **Platform Inquiries**: [cairnetp.com](https://cairnetp.com)
 
