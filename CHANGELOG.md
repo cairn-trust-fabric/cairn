@@ -12,6 +12,62 @@ Downloads and verification instructions: [Releases](https://github.com/cairn-tru
 
 ---
 
+## 2.2.0 — 17 August 2026
+
+A hardening release. Three of the fixes below were failures that returned
+something indistinguishable from success, and all three were found by running
+the product rather than by a test.
+
+### Fixed
+
+- **An empty policy ruleset could authorise an action.** Compliance was decided
+  by "no rule objected", which is trivially true when no rules have run. A pass
+  now requires that every registered rule was evaluated and satisfied, and the
+  governance gate refuses independently if no rules are loaded.
+- **An expired corporate policy kept being enforced as valid.** Expiry was
+  checked once, when the policy was first loaded, and the result cached for the
+  life of the process — so an instance running for days or weeks never
+  re-evaluated it. It is now re-checked on every read.
+- **Downloading a model claimed it was installed before anything downloaded.**
+  Choosing a model reported "installed and assigned" within milliseconds and
+  reassigned the pillar immediately, long before any data had transferred. The
+  pillar is now reassigned only after the download completes and the model is
+  confirmed present, and it keeps running its existing model until then.
+- **Downloads showed no progress on the card that started them.** Model Library
+  cards now show a live bar with the percentage and how much has transferred.
+- **A pillar could be assigned to a model that is not installed.** Such an
+  assignment is now refused with the reason, and the pillar is left unchanged.
+  **If you have used Download and Assign before this release, check your fleet
+  settings** — configurations written by the old behaviour may name models that
+  were never downloaded, and CAIRN has been quietly running a different one. The
+  fleet panel now reports these instead of hiding them.
+
+### Added
+
+- **Every governed decision records which policy ruleset produced it**, inside
+  the tamper-evident ledger. A rule weakened after the fact becomes visible as a
+  change rather than passing unnoticed.
+- **Ledger verification now says what it checked.** Routine checks start from a
+  signed checkpoint and report how many records were re-read, how many were
+  accepted on that checkpoint's authority, and when the chain was last verified
+  end to end. A full verification runs at startup and nightly; if it has not run
+  recently the evidence card reads **Full check overdue** rather than showing a
+  pass. A fast check cannot detect a record altered before the point it starts
+  from, and the interface says so rather than implying otherwise.
+- **The policy card reports what is being enforced**, not only how many actions
+  were refused — "nothing refused" and "nothing enforced" no longer look the
+  same.
+
+### Known limitations
+
+- **Ledger timestamps come from this machine's clock** and are not independently
+  attested. The order of records is evidence; the wall-clock time is not.
+  External timestamp anchoring is designed and not yet built.
+- **CAIRN is still not code-signed by a certificate authority.** Windows will
+  warn on download. Verify the release before installing — see below.
+
+---
+
 ## 2.1.1 — 16 August 2026
 
 Interface corrections found by reviewing the running 2.1.0 build.
