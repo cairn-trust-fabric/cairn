@@ -12,6 +12,40 @@ Downloads and verification instructions: [Releases](https://github.com/cairn-tru
 
 ---
 
+## 2.2.1 — 17 August 2026
+
+First-run corrections. Two were failures that produced something
+indistinguishable from success, and one was introduced by 2.2.0's own download
+fix reaching only one of two code paths.
+
+### Fixed
+
+- **First-run setup produced no usable audit record.** Its audit calls were made
+  in a shape the logging function does not accept, so a record was written that
+  contained none of the information it was made with.
+- **The first-run wizard and the Model Library used two separate downloaders**,
+  and 2.2.0's download fix reached only the second. The wizard's could stall or
+  abort on large models over slow connections. Both now use one implementation,
+  and the wizard shows the same measured byte counts the Model Library gained in
+  2.2.0.
+
+### Added
+
+- **First-run setup is recorded in the tamper-evident ledger**: which model backs
+  each pillar, and whether cloud routing was enabled — the setting that
+  determines what leaves your machine. Your API key is never recorded, only
+  whether one is present.
+- **Clickable starter suggestions** above the message box. Each disappears once
+  you have used it; re-running guided setup brings them back.
+
+### Changed
+
+- **The licence step is no longer the first thing a Community user is asked to
+  do.** Governance, the decision ledger, sandboxed execution and audit are never
+  gated, so leading with it implied a restricted build.
+
+---
+
 ## 2.2.0 — 17 August 2026
 
 A hardening release. Three of the fixes below were failures that returned
