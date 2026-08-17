@@ -12,6 +12,40 @@ Downloads and verification instructions: [Releases](https://github.com/cairn-tru
 
 ---
 
+## 2.2.2 — 17 August 2026
+
+Interface corrections found by reviewing the running 2.2.1 build. Three were
+failures that produced something indistinguishable from success.
+
+### Fixed
+
+- **"What can you do?" was answered by a language model, and got CAIRN wrong.**
+  The first suggestion in the opening message — and, since 2.2.1, a one-click
+  chip — had no handler, so it reached the router and came back describing CAIRN
+  as a large language model that is "currently under development". It now answers
+  from measured state with no model involved, and says plainly that CAIRN is the
+  layer between you and the models rather than one of them.
+- **The command menu opened off the top of the window.** Typing `/` always built
+  the list, so nothing appeared to be wrong — it was simply positioned where you
+  could not see it. It now opens above the message box, filters as you type,
+  moves with the arrow keys, runs on Enter, closes on Escape, and tells you when
+  nothing matches.
+- **The window title read "AI Hub"** instead of CAIRN Trust Fabric, and used the
+  name you gave your agent — so renaming your agent renamed the product.
+- **Trust & Audit cards did not line up**, leaving the shortest card looking as
+  though it had failed to load.
+
+### Added
+
+- **A Governance activity card** in Trust & Audit: decisions recorded and
+  refused, how the risk assessment graded them, and the split between read, write
+  and execute. Counts with their categories intact, deliberately not combined
+  into a single compliance score — one number would aggregate things that are not
+  comparable and would move for reasons unrelated to whether the system is
+  behaving.
+
+---
+
 ## 2.2.1 — 17 August 2026
 
 First-run corrections. Two were failures that produced something
