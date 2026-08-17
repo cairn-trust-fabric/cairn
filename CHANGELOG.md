@@ -12,6 +12,72 @@ Downloads and verification instructions: [Releases](https://github.com/cairn-tru
 
 ---
 
+## 2.2.3 — 17 August 2026
+
+Model recommendations are now checked against the machine they are offered to,
+this machine's capacity is stated on the screen that lists its models, and the
+opening suggestions are chosen from what your install can actually do.
+
+### Fixed
+
+- **Upgrade recommendations were never checked against your hardware.** The
+  memory figure was passed to the cloud model as advice and nothing enforced it,
+  so a machine that cannot hold a 32B model was routinely offered one. Every
+  recommendation is now sized against your machine before you see it. Anything
+  that will not fit is listed separately with the reason and the figure it was
+  judged against, rather than being either offered or quietly dropped.
+- **The recommendations panel claimed a basis it did not have.** It said the list
+  was "based on your hardware limits and fleet performance"; no benchmark result
+  reached that decision at all. It also reported "Incumbent Fleet Evaluated" on
+  every render, including from the button that runs no benchmark. Both statements
+  are gone. If you relied on either, they were not telling you what they appeared
+  to.
+- **Only the first upgrade card was drawn.** The panel stopped at the first
+  recommendation you did not already have installed, so six of seven cards, the
+  note explaining what had been filtered out, and the summary beneath them never
+  appeared. Present since 2.2.0.
+- **A recommendation could say "NEW" while stating its own size on disk** — an
+  untagged model name and the same model recorded with `:latest` were compared as
+  though they were different models.
+- **The built-in recommendation list offered models too large for smaller
+  machines.** It made a single distinction, at 32 GB, so an 8 GB laptop and a
+  24 GB workstation were offered the same 14B build. It now has four bands
+  matched to the hardware tiers CAIRN already reports.
+- **A failed hardware probe reported itself as a measurement.** When your machine
+  could not be read, the substituted figures were indistinguishable from real
+  ones. They are now labelled wherever they appear, and nothing is withheld from
+  you on the strength of them.
+
+### Added
+
+- **A capacity summary at the top of Model Fleet** — your processor, memory,
+  graphics memory and tier, the model size this machine suits, and whether those
+  figures were measured or assumed. Every installed model now says whether it
+  runs in graphics memory or spills into system memory, with its size, so a model
+  running several times slower than it could is visible rather than silent.
+- **A filter for models that run in graphics memory**, off by default, which
+  states how many it is hiding rather than simply showing fewer.
+- **Opening suggestions chosen for your install** — reflecting the connectors you
+  have configured, the scripts you have already saved, and how capable your local
+  models are. They no longer run out after the first three are used. Every
+  suggested phrase either resolves to a command answered without a model, or is
+  an ordinary request.
+
+### Known limitations
+
+- Model sizes for anything not yet installed are estimated from the model's
+  parameter count, and are labelled as estimates wherever they are shown. Sizes
+  for models you already have are read from disk.
+- The installer itself remains untested, including upgrading over a previous
+  version. Launching the packaged application is checked before every release;
+  running the installer is not.
+- Ledger timestamps come from your machine's clock and are not independently
+  attested. The order of records is evidence; the wall-clock time is not.
+- No automatic update, deliberately, until releases carry a code-signing
+  certificate.
+
+---
+
 ## 2.2.2 — 17 August 2026
 
 Interface corrections found by reviewing the running 2.2.1 build. Three were
