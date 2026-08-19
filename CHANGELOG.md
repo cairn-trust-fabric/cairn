@@ -12,6 +12,90 @@ Downloads and verification instructions: [Releases](https://github.com/cairn-tru
 
 ---
 
+## 2.2.4 — 19 August 2026
+
+A day of ordinary use turned up five defects. Chasing the second one led to a
+sixth that matters more than the rest: CAIRN would run a saved script without ever
+reading it.
+
+### Fixed
+
+- **Choosing a model for a pillar did nothing.** The dropdowns in Settings → Fleet
+  Roles accepted your choice, showed it, and discarded it. The control that saved
+  it stopped existing on 10 August and nothing replaced it, so every pin made
+  since then was lost the moment the panel refreshed. Choices now apply as you
+  make them, and if CAIRN refuses one it says why and puts the previous model
+  back rather than displaying a pin that is not in force.
+- **Local models could fail outright or run several times slower than they
+  should.** CAIRN was asking Ollama for a 131,072-token context window on every
+  model regardless of the machine, which pushed models off the graphics card and
+  into system memory — and on smaller machines caused the model to fail to load
+  at all. On the machine this was found on, one 8B model went from 25 GB and
+  mostly on the CPU to 7.3 GB and entirely on the GPU. If a model does fail to
+  load, CAIRN now reports what the model runtime actually said instead of a bare
+  error code.
+- **Chat could fall into repeating itself.** Nothing was set to discourage
+  repetition beyond the runtime's own default, which only looks back 64 tokens —
+  enough to catch a repeated word and not a repeated sentence. Repetition
+  controls are now set explicitly, and if a model still starts looping, CAIRN
+  stops it, removes the repeated passage and tells you it did so. Previously the
+  loop ran to a length limit and was handed to you as the answer.
+- **The Model Library looked broken.** Opening it showed an empty search box, an
+  empty result list and no explanation until you pressed Load. It now fills
+  itself in when you open Settings, and the pillar and capability filters
+  actually re-run the search — before this they changed nothing.
+- **Benchmark scores from different versions were being compared with each
+  other.** The benchmark changed on 10 August: half its checks had never been
+  evaluated before that date. Scores from either side sat in one list and helped
+  decide which model backed which pillar, so a model could rank higher for having
+  been measured under the older, easier version. Results now record which version
+  produced them, and anything from an older one is treated as **not measured**
+  rather than as a low score. Your existing scores fall into that category; re-run
+  the fleet benchmark to replace them.
+- **A model with no recorded speed was treated as having a speed of zero**, which
+  pushed it down the ranking for never having been measured rather than for being
+  slow.
+
+### Added
+
+- **CAIRN will no longer run a script it has not read.** Running a saved script by
+  name skipped the safety check entirely — the check only looked at code pasted
+  directly into a request, so anything already in your Automation Vault was
+  approved on the strength of its filename. A saved script is now read and checked
+  before it is allowed to run, exactly as pasted code always was, and a script
+  that cannot be found or read is refused rather than approved. This also applies
+  to organisation-signed policies: a policy that forbids a command now stops a
+  saved script containing it, which it did not before.
+- **The context window each model gets is now measured rather than assumed.** It
+  is set from the size of the prompts that model has actually been sent, bounded
+  by what your machine and the model can support, and the Model Fleet tab says
+  which of those decided it.
+- **Models made redundant by a newer version of themselves are listed for
+  removal.** If you have both Qwen 2.5 and Qwen 3 of the same size and build,
+  Settings now says so and offers to remove the older one. It only proposes;
+  nothing is deleted unless you ask, and a model currently backing a pillar is
+  shown but not offered, because removing it would leave that pillar to fall back
+  to whatever ranked next.
+
+### Known limitations
+
+- **CAIRN judges how an action is performed, not what it would affect.** Running a
+  script is assessed on what the code does — deleting files, reaching the network
+  — and never on what system it touches or how important that system is. A script
+  that reads as harmless is treated as harmless whether it runs on a spare laptop
+  or a production cluster. Making that distinction requires you to declare which
+  systems are protected, and that is not built. Do not read the approval step as
+  an assessment of business impact.
+- **There is still no automatic update.** A downloaded 2.2.4 stays on 2.2.4 until
+  you download again. This remains deliberate: the installers are not
+  code-signed, and an updater that cannot verify what it is installing is a worse
+  risk than no updater.
+- **The installer itself is not covered by automated testing.** The application it
+  installs is started and checked before every release; the installation process
+  is not.
+
+---
+
 ## 2.2.3 — 17 August 2026
 
 Model recommendations are now checked against the machine they are offered to,
