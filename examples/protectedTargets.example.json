@@ -1,0 +1,62 @@
+{
+  "_readme": "Copy to vault/protectedTargets.json and edit. CAIRN never reads this file from examples/. Declaring nothing is safe: consequence is then recorded as 'not assessed' rather than as low, and no grade is raised.",
+  "_whatThisDoes": "Raises the risk grade of an action according to what it would AFFECT, not only how it would do it. Without it, 'run a script' is MEDIUM whether the script prints a message or reconfigures a production cluster.",
+  "_matching": "Every match is a literal string or path comparison. The model is never asked what is critical, because the model is the thing being governed.",
+  "_criticality": "LOW | MEDIUM | HIGH | CRITICAL. A matched target raises the action's grade to this level. A READ of a protected target is recorded but does not raise the grade, because a read does not affect it.",
+
+  "registerVersion": 1,
+  "declaredBy": "Infrastructure Security — replace with your own team and date",
+
+  "targets": [
+    {
+      "id": "PT-001",
+      "label": "Production trading cluster",
+      "class": "system",
+      "criticality": "CRITICAL",
+      "note": "identifiers are matched case-insensitively against the tool name, the argument values, and the resolved execution payload — which includes the contents of a vault script invoked by name, so naming a script cannot evade this.",
+      "match": {
+        "identifiers": ["vsphere-prod-01", "TRADING-VDI", "esx-prod-"]
+      }
+    },
+    {
+      "id": "PT-002",
+      "label": "Production configuration root",
+      "class": "pathPrefix",
+      "criticality": "HIGH",
+      "note": "'..' is resolved before comparison and case and separators are folded, so C:\\ProgramData\\Prod\\..\\Windows does not satisfy this prefix. A sibling directory sharing the prefix text (Prod-Notes) does not match.",
+      "match": {
+        "pathPrefixes": ["C:\\ProgramData\\Prod", "D:\\Deploy\\live"]
+      }
+    },
+    {
+      "id": "PT-003",
+      "label": "Customer database",
+      "class": "serviceClass",
+      "criticality": "CRITICAL",
+      "match": {
+        "identifiers": ["cust-db-prod", "customers.sql"],
+        "pathPrefixes": ["D:\\SQL\\customers"]
+      }
+    },
+    {
+      "id": "PT-004",
+      "label": "Cluster capacity reconfiguration",
+      "class": "changeClass",
+      "criticality": "HIGH",
+      "note": "patterns are regular expressions, matched case-insensitively. A pattern that will not compile is REPORTED in the decision record rather than skipped, because an operator with a broken expression believes they have protection they do not have.",
+      "match": {
+        "patterns": ["Set-VMHost", "overcommit", "cpu\\s*ratio", "Remove-Cluster"]
+      }
+    },
+    {
+      "id": "PT-005",
+      "label": "Anything under the production deployment pipeline",
+      "class": "changeClass",
+      "criticality": "MEDIUM",
+      "note": "A MEDIUM target does not raise a grade that is already MEDIUM or higher. Use it to record that something was touched without changing the outcome.",
+      "match": {
+        "patterns": ["deploy\\s+--prod", "kubectl\\s+.*\\bprod\\b"]
+      }
+    }
+  ]
+}

@@ -75,6 +75,8 @@ Three of these are switched off until you configure them, and CAIRN records them
 as unconfigured rather than as satisfied — never as "checked and fine". Each is a
 JSON file you create in your vault directory, and CAIRN tells you in its decision
 record when one is absent, malformed, or contains an entry it could not apply.
+Worked examples, and what happens if you get one wrong, are in
+[`examples/`](examples/).
 
 - **Risk now reflects what an action would affect, not just how it would do it.**
   Previously, "run a script" carried the same risk grade whether the script

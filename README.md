@@ -94,6 +94,13 @@ Every recommendation and automated action is graded across 6 deterministic assur
 
 3. **Run the installer.** Read the note below on the Windows warning first.
 
+4. **Tell CAIRN which of your systems matter.** It ships with nothing declared, so
+   it grades an action by what kind of thing it is rather than by what it would
+   affect, and applies no ceiling to what it may do on its own — and it records
+   that absence rather than treating it as approval. Copy a file from
+   [`examples/`](examples/) into your vault to change that. Optional, and CAIRN is
+   explicit in every decision record about which of these are not in force.
+
 ---
 
 ## Windows will warn you about this download
