@@ -12,6 +12,134 @@ Downloads and verification instructions: [Releases](https://github.com/cairn-tru
 
 ---
 
+## 2.3.2 — 20 August 2026
+
+The rules an organisation signs into a corporate policy are now actually
+enforced — four of the six kinds were not, and CAIRN was recording all six in its
+audit trail as though they were. That correction is the reason this release
+exists; the rest is new governance you can switch on, and three defects found by
+running the build and looking at it.
+
+Versions 2.3.0 and 2.3.1 were built and verified but never released, so this is
+the first release since 2.2.4. Two of the fixes below are fixes to fixes made in
+those builds, which is why they are described the way they are.
+
+### Fixed
+
+- **Four of the six rule types in a signed corporate policy were doing nothing,
+  and the audit trail said otherwise.** If your organisation signed a policy
+  requiring approval for certain actions, restricting work to particular folders,
+  demanding container isolation, or capping daily cloud spend, **none of those
+  four were being applied**. Only the blocked-command and forbidden-path rules
+  worked.
+
+  The serious part is not the missing enforcement. CAIRN counted every rule in a
+  signed policy into its tamper-evident decision record as an enforced rule, so
+  the record showed six rules in force while two were. **If you have relied on
+  that count as evidence, it was wrong**, and records written before this release
+  carry the old number. All six rule types are now enforced, and the count
+  includes only rules that are actually applied. A rule this version does not
+  understand — from a policy written for a newer release — is named in the record
+  as unenforced rather than counted.
+
+- **CAIRN refused to explain a script sitting in your own vault.** Asked what one
+  of your saved scripts does, it replied that it could not access your automation
+  vault — a vault it can read, holding a file it had already listed. When you name
+  a script you have saved, its contents are now put in front of the model before
+  it answers. It only reads a script you actually named; it will not guess which
+  one you meant, because a confident explanation of the wrong script is worse than
+  being told to look it up yourself.
+
+  Your saved scripts are read and answered on your machine. CAIRN does send the
+  *names and descriptions* of your scripts to the cloud model that decides how to
+  handle each request — that is disclosed on every call and can be switched off in
+  your egress policy — but the contents of a script are not sent to a cloud
+  provider, and the default policy refuses to.
+
+- **Code appeared in the chat and was then replaced by a different answer.** What
+  you were seeing was the first draft, streamed live before it had been checked,
+  run in the sandbox, or repaired — so it was often not the code that ended up
+  saved. Generation progress is still shown; the draft itself no longer is. What
+  appears in the transcript is the result that was actually verified.
+
+- **The application showed Electron's default icon instead of CAIRN's.** Only in
+  the installed build — running from source was always correct, which is how it
+  went unnoticed. Fixed twice: the first attempt corrected the window title bar
+  and left the taskbar wrong, because the icon file was being loaded in a way that
+  silently cannot read that file format at all and quietly fell back to a
+  single-size image.
+
+### Added
+
+Three of these are switched off until you configure them, and CAIRN records them
+as unconfigured rather than as satisfied — never as "checked and fine". Each is a
+JSON file you create in your vault directory, and CAIRN tells you in its decision
+record when one is absent, malformed, or contains an entry it could not apply.
+
+- **Risk now reflects what an action would affect, not just how it would do it.**
+  Previously, "run a script" carried the same risk grade whether the script
+  printed a message or reconfigured a production system. You can now declare which
+  systems, folders and kinds of change matter to you, and an action that touches
+  one is graded accordingly. Matching is exact and declared by you — CAIRN never
+  decides for itself what counts as critical.
+
+  Reading something you have marked as critical is recorded but does not raise the
+  grade. Reading it does not change it, and an alert on every read is an alert
+  nobody keeps reading.
+
+- **You can cap how far CAIRN is allowed to go.** A ladder — observe, analyse,
+  recommend, prepare, execute with approval, execute unattended — mapped to
+  combinations of action, target and user. Execution against your production
+  systems can be capped at "recommend" while the same tool runs freely elsewhere.
+  Rules only ever narrow what is permitted, so adding one cannot accidentally
+  widen it. The model has no say in its own level.
+
+- **A consequential turn now leaves a decision record.** When CAIRN authorises an
+  action with effect, refuses one, touches a system you declared, or hits a
+  ceiling you set, it files a record in its tamper-evident ledger — with what it
+  was asked, what it did, what that would affect, and whether the record can be
+  accepted as sound. Records that cannot be are still kept, and say why. What
+  triggers a record is what CAIRN actually did, never what it said about itself.
+
+- **A decision record has to hold up.** It is accepted only if it does not
+  describe evidence you supplied as missing, does reference the evidence it was
+  given, was assessed against systems you declared, and can be read back out of
+  the ledger. Every one of those is checked mechanically after the fact, not
+  claimed by the model.
+
+- **Changing a fact invalidates the decisions that rested on it.** Correct a
+  figure or withdraw one, and the decisions built on it are reported as no longer
+  current — not as wrong; a decision made correctly on the facts of the day does
+  not become a mistake when the facts move. Re-running a decision against
+  unchanged evidence is refused outright, and a revision that never mentions what
+  changed is reported as what it is.
+
+- **The compliance export now says which artefact answers which control.** The
+  signed evidence bundle — decision ledger, execution records, audit trail,
+  integrity report, and instructions your auditor can follow without installing
+  CAIRN — now carries a mapping to EU AI Act Articles 12, 14 and 15 and SOC 2
+  CC6.1 to CC6.8. Every entry also states what the evidence does **not**
+  establish, and controls this product cannot speak to are listed as such rather
+  than left out.
+
+  **This is not a certification and does not claim to be one.** CAIRN holds no
+  SOC 2 report and no ISO 27001 certificate. The bundle produces evidence you use
+  to demonstrate your controls; whether it satisfies them is your assessor's call.
+
+### Still true, and worth repeating
+
+- **The installer is not code-signed.** Windows will warn you. Verify the download
+  instead — every release carries a signed hash list and a dependency-free
+  verifier, and the signing key's fingerprint is published in this repository
+  rather than only on the release page.
+- **There is no auto-update.** Deliberately: an updater that installs unsigned
+  code without checking a signature is a mechanism for installing anything.
+  Updates are a download, until code signing exists.
+- **CAIRN has only ever been run on Windows.** macOS and Linux builds have never
+  been produced or tested.
+
+---
+
 ## 2.2.4 — 19 August 2026
 
 A day of ordinary use turned up five defects. Chasing the second one led to a
