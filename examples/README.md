@@ -1,76 +1,83 @@
 # Example configuration
 
-CAIRN ships with **nothing declared**. Out of the box it grades an action by what
-kind of thing it is, not by what it would affect, and it applies no ceiling to
-what it may do on its own.
+Three operator-declared controls govern what CAIRN may do. **All three ship
+declaring nothing**, and a stock installation therefore demonstrates none of
+them — which is the honest default, and the reason these examples exist.
 
-That is the honest default rather than a gap: CAIRN cannot know which of your
-systems matter, and guessing would be worse than saying so. What it does instead
-is record the absence — a decision record says consequence was *not assessed*, never
-that it was assessed and found fine.
+Copy a file into the vault, edit it, and it takes effect on the next tool call.
+CAIRN never reads anything from this directory.
 
-These files are what you copy to change that. Both take effect on the next
-request; there is nothing to restart.
-
-| File | Copy it to | What CAIRN does without it |
+| Control | Copy to | Effect when absent |
 | --- | --- | --- |
-| `protectedTargets.example.json` | `protectedTargets.json` in your vault | Grades risk from the mechanism alone, and records that consequence was not assessed |
-| `autonomyPolicy.example.json` | `autonomyPolicy.json` in your vault | Applies no ceiling, and records that no ladder is in force |
+| Protected targets | `vault/protectedTargets.json` | Consequence is recorded as **not assessed**. Risk is graded from mechanism alone |
+| Autonomy ladder | `vault/autonomyPolicy.json` | The ladder is **not enforced**. No maximum level is applied |
+| Corporate policy | `vault/corporate_policy.json` | No corporate rules are in force. See below — this one must be **signed** |
 
-Your vault directory is shown in **Settings → Trust & Audit**. Open either file,
-delete the entries that do not describe your estate, and put in the ones that do.
+Where the vault is depends on the installation; `CAIRN_VAULT_DIR` overrides it.
+The Trust & Audit tab reports the resolved path.
 
-## What happens if you get it wrong
+## The important property
 
-Nothing silent. A file that will not parse is reported as invalid and **is not
-enforced** — CAIRN will not stop working because of a trailing comma, and it will
-not pretend the file is in force either. An individual entry that could never match
-anything, or names a criticality that does not exist, is rejected by name and the
-rest of the file still applies.
+**An absent control is recorded as absent, never as a pass.** A decision record
+carries `assessed: false` for consequence and `enforced: false` for the ladder,
+each with a reason. Nothing in the ledger reads as "this was checked and found
+fine" when nothing was checked — that distinction is the difference between an
+audit trail and a reassuring one, and it is asserted by the test suites in both
+directions.
 
-Check a decision record after editing; it names anything CAIRN could not read.
+The same rule applies to a file you write badly. A malformed register is reported
+as `INVALID` by name and is **not** enforced; an individual entry that could never
+match — no match rule, an unrecognised criticality — is rejected by name rather
+than half-applied. Neither fails closed: an unsigned local file that can only
+restrict must not be able to stop all work on a node because of a trailing comma.
+Check the decision record after editing; it names anything it could not read.
 
 ## Protected targets
 
+`protectedTargets.example.json`
+
 Declares what matters, so that risk reflects what an action would **affect** and
-not only how it would do it. Without it, "run a script" carries the same grade
-whether the script prints a message or reconfigures a production cluster.
+not only how it would do it. Without it, "run a script" grades MEDIUM whether the
+script prints a message or reconfigures a production cluster.
 
-Matching is exact — identifiers, folder prefixes, patterns — and is checked against
-what the action would actually run, including the contents of a saved script
-invoked by name. Naming a script instead of pasting it does not get around a target.
+Matching is literal — identifiers, path prefixes, regular expressions — against
+the tool name, the argument values, and the **resolved execution payload**, which
+includes the contents of a vault script invoked by name. Naming a script instead
+of pasting it does not evade a target.
 
-**CAIRN never decides for itself what counts as critical.** Every match is a literal
-comparison against something you wrote.
-
-A **read** of something you have marked critical is recorded but does not raise the
-grade. Reading a file does not change it, and an alert on every read is an alert
-nobody keeps reading.
+A **read** of a protected target is recorded but does not raise the grade. Reading
+a file under a protected path does not affect the protected thing, and grading
+every such read CRITICAL produces an alert stream that is ignored within a week.
 
 ## Autonomy ladder
 
+`autonomyPolicy.example.json`
+
+```text
+0 OBSERVE   1 ANALYSE   2 RECOMMEND   3 PREPARE   4 EXECUTE_WITH_APPROVAL   5 EXECUTE_AUTONOMOUSLY
 ```
-0 OBSERVE   1 ANALYSE   2 RECOMMEND   3 PREPARE   4 EXECUTE WITH APPROVAL   5 EXECUTE UNATTENDED
-```
 
-Maps combinations of action, target and user to a maximum permitted level. Reading
-needs ANALYSE, writing needs PREPARE, and anything that executes needs EXECUTE WITH
-APPROVAL — including a tool CAIRN does not recognise, which is treated as the most
-restrictive case rather than the least.
+Maps (action class × target class × identity) to a maximum permitted level. A
+read needs ANALYSE, a write needs PREPARE, anything that executes needs
+EXECUTE_WITH_APPROVAL — including a tool CAIRN does not recognise, which is
+treated as the most restrictive class.
 
-**Rules only ever narrow.** The lowest matching ceiling wins, so adding a rule can
-never accidentally widen what is permitted. If you need to permit more, raise the
-ceiling that is currently binding — an exception will not override it.
+**Rules combine by lowering only.** The lowest matching ceiling wins, so adding a
+rule can never widen what is permitted. If you need to permit more, raise the
+ceiling that is currently binding rather than adding an exception — an exception
+will not override it.
 
-**The model has no say in its own level.** Levels are worked out from the action,
-the target and the operating-system user, and there is no route by which the model
-could supply one.
+The model has no say in its own level. Levels are resolved from the action class,
+the target class and the operating-system principal, and the resolver has no
+parameter through which model output could arrive.
 
 ## Corporate policy
 
-Not included here, because an unsigned example would be misleading.
+Not an example file, because an unsigned one would be misleading: a corporate
+policy is **Ed25519-signed by the organisation**, and CAIRN fails closed into
+lockdown if the signature does not verify. The payload shape, the signing
+procedure and the full rule reference are in
+[`docs/SIGNED_CORPORATE_POLICY_ENGINE.md`](../docs/SIGNED_CORPORATE_POLICY_ENGINE.md).
 
-A corporate policy is signed by your organisation with an Ed25519 key, and CAIRN
-stops rather than continues if the signature does not verify. Unlike the two files
-above — which are yours, local, and can only ever *restrict* what CAIRN does — that
-one is an authority boundary. Contact us if you are deploying one across a fleet.
+Unlike the two files above, this one is an authority boundary: a tampered policy
+stops the node rather than being reported and ignored.

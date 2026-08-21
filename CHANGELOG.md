@@ -12,6 +12,90 @@ Downloads and verification instructions: [Releases](https://github.com/cairn-tru
 
 ---
 
+## 2.4.0 — 21 August 2026
+
+Three security fixes, two corrections to things CAIRN previously reported
+**wrongly**, and the tooling that makes its two operator-declared controls
+adoptable rather than merely available.
+
+If you have used a verification grade or the Trust & Audit decision count on an
+earlier version, read "Corrections" below. Neither was what it appeared to be.
+
+### Security
+
+- **A command starting with a read-only word skipped the approval prompt
+  entirely**, however much followed it. `echo hello; Start-Process notepad.exe`
+  ran on your machine without asking, because the check only looked at how the
+  command began. Compound commands are no longer eligible for that shortcut. The
+  governance gate itself was never bypassed — what this removed was *you*.
+- **The API accepted requests from other websites.** A page you visited could
+  make CAIRN act — it could not read the results, but it could cause the actions.
+  Cross-site requests are now refused, and the first-run setup routes, which sat
+  outside the authentication guard entirely, now sit behind it.
+- **Memory recall could reach the cloud without passing the egress gate.** If the
+  local embedding model was unavailable and you had a cloud key configured, the
+  text of your recall query was sent to that provider unexamined — while the
+  privacy panel stated that memory ran on local models. The query now goes to the
+  egress gate, which refuses it under the default policy, and recall falls back to
+  keyword matching on your own machine. What was exposed was the *query*, not your
+  stored memories.
+
+### Corrections
+
+- **A sandbox run that failed could be reported as one that worked.** A script
+  whose every statement errored inside the Windows Sandbox was graded
+  `behaviour_checked` — the grade meaning the code ran *and* its output was
+  correct — and the disclosure read "Behavioural checks: 1/1 passed. Output
+  matched the expectations derivable from your instruction." Two causes: the
+  error stream was folded into ordinary output, so error text satisfied a check
+  asking whether the script produced anything; and success was read from the exit
+  code alone, which PowerShell sets to 0 even when a command is not recognised.
+  **A grade you saw before this version may have been higher than the run
+  earned.**
+- **The code that was verified was not always the code that ran.** Generated code
+  went to verification with its markdown fence still attached and was cleaned only
+  afterwards for execution — so the sandbox tested a different artefact from the
+  one that ran, and the fence itself was what broke the sandboxed run.
+- **Trust & Audit said "Nothing recorded yet" while the ledger held records.**
+  The card shows the current conversation only and never said so. It now names its
+  scope and points at what exists elsewhere. Opening that tab also used to add
+  records to the count it was displaying; it no longer writes to the ledger it
+  reports on.
+
+### New
+
+- **Obfuscated PowerShell is now caught.** Code written to defeat pattern
+  matching — computed command names, COM objects, .NET process creation, WMI
+  invocation — is parsed with PowerShell's own parser and refused before it runs.
+  Windows and PowerShell only; Python, JavaScript and Bash are still matched by
+  pattern alone, and CAIRN says so rather than implying otherwise.
+- **See what a policy would do before you turn it on.** A dry run replays what
+  CAIRN has actually done against a policy you are considering and reports what
+  would newly be refused. Rules it cannot test against your history are named as
+  untestable rather than counted as clean.
+- **Worked examples now ship with the application**, and Trust & Audit can install
+  one for you, showing you the file first. CAIRN still declares no protected
+  systems or autonomy limits of its own — a register CAIRN wrote would not be one
+  you chose — and it will never overwrite one you have written.
+- **Decisions whose evidence has since changed are found automatically**, nightly,
+  rather than only when someone thinks to look. The check reports what it could
+  not assess as well as what it could, and says when it has nothing to check.
+- **Route Claude Code, Claude Desktop or Cursor through CAIRN's governance**, so
+  their tool calls are authorised and recorded like any other. Their calls are
+  attributed to them rather than to you, and they can never do more than you can.
+  `cairn-integrate` prints the configuration by default and writes nothing unless
+  you ask.
+
+### Also
+
+- Memory recall degrades to keyword search instead of returning nothing when the
+  local embedding model is unavailable, and results say which basis they used.
+- Coverage figures are repeatable between runs for the first time; the test run no
+  longer kills workers before they report.
+- An approval no longer leaves a timer behind after you answer it.
+
+---
+
 ## 2.3.2 — 20 August 2026
 
 The rules an organisation signs into a corporate policy are now actually
