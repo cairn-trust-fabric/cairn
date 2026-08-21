@@ -12,6 +12,56 @@ Downloads and verification instructions: [Releases](https://github.com/cairn-tru
 
 ---
 
+## 2.4.1 — 21 August 2026
+
+Completes the structural analysis 2.4.0 introduced. That release stopped obfuscated
+PowerShell reaching your machine and said plainly that JavaScript, Python and Bash
+were still matched by pattern alone. This one closes JavaScript — and explains why
+the other two did not need closing.
+
+Nothing was broken in 2.4.0. This finishes something that release started.
+
+### JavaScript is now analysed properly
+
+A saved `.js` script runs on your machine with `node`, outside any sandbox. Until
+now, code written to defeat pattern matching got through: a `require()` whose module
+name is assembled at runtime, `vm.runInNewContext`, a worker thread built from a
+string of code, `process.binding`, the `Function` constructor. None of those look
+dangerous to a regular expression, and all of them are obvious once the code is
+actually parsed.
+
+**Measured: 9 of 9 known evasions refused, and none of 6 ordinary scripts wrongly
+blocked.** The analysis runs in-process, so it costs about a thirtieth of a
+millisecond.
+
+Both analysers now run over every executable payload and their findings are
+combined, rather than one being picked by guessing which language the code is in.
+Guessing was itself the source of a defect during development, so it was removed.
+
+### Why Python and Bash are not analysed
+
+This is a scope, not an omission, and it follows from what CAIRN can actually run:
+
+- **Python** only ever runs inside the Docker sandbox, and only after you approve it.
+  There is no path that runs Python directly on your machine, so there is nothing for
+  a host-execution check to protect.
+- **Bash cannot run at all.** CAIRN executes exactly three languages — Python,
+  JavaScript and PowerShell. A shell script is never recognised as one; on Windows it
+  falls through to PowerShell, where it either means nothing or is caught by the
+  PowerShell analysis.
+
+If either of those ever changes, the change itself will fail CAIRN's own test suite
+until the analysis is extended — the assumption is written down as a test rather than
+left as an intention.
+
+### Also
+
+- A decision record now shows each analyser's result separately, because one of them
+  is legitimately "not applicable" for any given script and a single combined result
+  would read as "not checked".
+
+---
+
 ## 2.4.0 — 21 August 2026
 
 Three security fixes, two corrections to things CAIRN previously reported
