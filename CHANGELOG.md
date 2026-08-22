@@ -12,6 +12,119 @@ Downloads and verification instructions: [Releases](https://github.com/cairn-tru
 
 ---
 
+## 2.5.0 — 22 August 2026
+
+Mostly a repair release, and the two largest repairs are things previous versions
+got wrong on your machine rather than new capability.
+
+**If you have installed CAIRN before, please read the first section.** This
+version changes how it installs, and there is one thing you may need to tidy up
+by hand.
+
+### Installing now replaces the previous version instead of sitting beside it
+
+Until now the installer asked whether to install for all users or just for you,
+and Windows treats those as two separate products. Choosing differently from last
+time did not upgrade anything — it installed a second copy.
+
+The result, on a machine that had installed a few versions, was:
+
+- **three entries** in Add/Remove Programs for one product
+- **two Start-menu entries with the same name**, launching different versions
+- a **desktop shortcut pointing at an older version than the one just installed**
+- all of them sharing one set of your data, including the audit ledger
+
+Nothing was lost and nothing was at risk, but the version you launched was not
+necessarily the version you installed, and there was no way to tell from the
+Start menu which was which.
+
+CAIRN now always installs for all users. There is no choice to get wrong, and
+upgrades replace the previous version in place.
+
+**What you may need to do once:** if you previously chose "just me", that copy
+cannot be upgraded by this one and will remain installed. The installer detects
+this, tells you, and names the uninstaller to run. Remove it from Settings →
+Apps and you will be left with a single entry.
+
+Installing for all users now requires an administrator prompt. It did not always
+before, and that is a consequence of the fix rather than a new requirement.
+
+### The application icon no longer reverts to a generic one
+
+The taskbar and tray icon periodically fell back to a plain Electron icon. This
+was fixed twice before, and both fixes were correct — they were fixes to a
+different cause with the same symptom, which is why it kept returning.
+
+The actual reason was that CAIRN identified itself to Windows under a name that
+did not match the one on its own shortcuts, so Windows could not connect the
+running window to the installed application. It now uses the same identity in
+both places.
+
+The same mismatch also meant desktop notifications were attributed to an
+unregistered identity, so **if notifications have never appeared for you, that
+is the likely reason** and they should now work.
+
+### Credentials are no longer handed to scripts CAIRN writes
+
+CAIRN encrypts your API keys and passwords when it stores them. It was then
+passing the decrypted values, in the environment, to every script it generated
+and ran on your machine — including background tasks. A script had no need for
+them and no reason to receive them.
+
+Scripts now receive only information describing the computer: paths, locale,
+processor, user name. No credential reaches them. **Settings → Privacy now states
+exactly how many values a script can see and how many were withheld.**
+
+Audit records are also checked before they are written, so a credential that
+appears in a recorded action is replaced rather than stored. The record itself is
+never dropped.
+
+This does not protect against software already running as you, which can read the
+encrypted store directly. No local product can prevent that, and CAIRN does not
+claim to.
+
+### Optional: tell me when a new version is published
+
+**Off by default, and it stays off until you turn it on.** When enabled, CAIRN
+reads the published release list and the signed checksum file that accompanies
+it, confirms the signature matches the key that signed previous releases, and
+shows you a link.
+
+Nothing about your machine is sent — no version, no usage, no identifier. The
+panel names the single address it contacts before you agree to anything, and
+turning it off stops all of it.
+
+**CAIRN will never download or install an update for you.** That is a deliberate
+decision, not an unfinished feature. CAIRN is not code-signed by a certificate
+authority, and software that silently installs unsigned code is exactly the
+mechanism an attacker wants. You download it yourself, verify it yourself, and
+install it yourself.
+
+If a release is found whose signature does not match, you are shown a warning and
+**no link**, because the one thing you should not do in that situation is go and
+download it.
+
+### Better model recommendations
+
+The advice about which model suits which part of CAIRN was built from a fuller
+description of what each part actually needs — including size limits that were
+previously enforced only after you had already been offered a model that could
+not be used.
+
+Two of CAIRN's seven components were also recording their results under the wrong
+category, so measurements gathered from your own machine were being applied to the
+wrong decisions. This is corrected, and those measurements start fresh.
+
+### Corrections to the documentation
+
+Three places told you to put credentials in a plain-text file, including the
+enterprise manual and the setup guide. One described the tool that encrypts your
+keys as writing them to the very file it exists to replace. A product whose case
+rests on encrypting secrets should not ship instructions for defeating it. All
+three are corrected.
+
+---
+
 ## 2.4.1 — 21 August 2026
 
 Completes the structural analysis 2.4.0 introduced. That release stopped obfuscated
