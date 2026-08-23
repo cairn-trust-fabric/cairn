@@ -59,7 +59,13 @@ repository and false about what a user could actually download or read.
   verification performed before the change still holds. The MSI remains
   *withheld rather than retired*: more than a third of binary downloads chose it,
   and it returns once a clean-machine install and uninstall have been performed
-  on it. **Releases 2.1.1–2.4.1 still carry one.**
+  on it.
+
+  **Amended later the same day: the other nine releases were corrected too.**
+  2.1.1–2.4.1 each carried an MSI as well, and each has had it removed by the
+  same procedure — manifest verified before the change, only the MSI rows
+  dropped, every surviving row carried across byte-for-byte, and the result
+  re-verified after publishing. **No `.msi` exists anywhere on the repository.**
 
 - **A rebuilt installer claimed a commit it was not built from.** `npm run
   build:win` runs `scripts/check-version.js`, not `scripts/version.js --stamp`,
