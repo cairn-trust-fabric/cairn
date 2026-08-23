@@ -65,7 +65,16 @@ repository and false about what a user could actually download or read.
   2.1.1–2.4.1 each carried an MSI as well, and each has had it removed by the
   same procedure — manifest verified before the change, only the MSI rows
   dropped, every surviving row carried across byte-for-byte, and the result
-  re-verified after publishing. **No `.msi` exists anywhere on the repository.**
+  re-verified after publishing.
+
+  A final count then found a tenth — **2.1.0**, missed because the tag list had
+  been read from a command that pages at ten. It was corrected as well, and
+  deliberately **not** signed: it predates CAIRN's signed manifests, and signing
+  it now would make a release that was never signed look as though it had been.
+  Its notes say so and point at a later release.
+
+  **No `.msi` exists anywhere on the repository**, confirmed across all twelve
+  releases by enumeration rather than by a list.
 
 - **A rebuilt installer claimed a commit it was not built from.** `npm run
   build:win` runs `scripts/check-version.js`, not `scripts/version.js --stamp`,
