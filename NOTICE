@@ -1,0 +1,27 @@
+CAIRN Trust Fabric
+Copyright (c) 2026 CAIRN Enterprise Systems
+
+This product is licensed under the Business Source License 1.1. See LICENSE.
+
+  On 2030-08-23 the licence for each version released under these terms
+  converts automatically to the Apache License, Version 2.0.
+
+TRADEMARKS
+
+"CAIRN", "CAIRN Trust Fabric", "CAIRN ETP" and the stacked cairn logo are
+trademarks of CAIRN Enterprise Systems. The Business Source License grants
+rights in the software and grants no rights in these marks.
+
+You may state accurately that your work uses, integrates with, or is built on
+CAIRN Trust Fabric. You may not use these marks as the name of your own product
+or service, or in any way that suggests your work is produced, endorsed, or
+certified by CAIRN Enterprise Systems.
+
+A fork is welcome under the licence terms. It needs its own name.
+
+THIRD-PARTY SOFTWARE
+
+Distributed builds of CAIRN Trust Fabric bundle third-party components under
+their own licences, including Electron (MIT), Node.js (MIT), Express (MIT),
+acorn (MIT) and Kokoro-82M ONNX model weights (Apache 2.0). Their notices travel
+with the binaries in which they are distributed.

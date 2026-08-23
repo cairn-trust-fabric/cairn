@@ -5,9 +5,10 @@
 ### The Enterprise Trust Fabric — Secure • Orchestrate • Automate
 
 [![Release](https://img.shields.io/badge/Release-v2.5.0-2562EB?style=flat-square)](https://github.com/cairn-trust-fabric/cairn/releases)
-[![Platform](https://img.shields.io/badge/Platform-Windows%20x64%20%7C%20Linux%20Containers-14C8A6?style=flat-square)](https://cairnetp.com)
+[![Platform](https://img.shields.io/badge/Platform-Windows%20x64%20%7C%20Linux%20x64%20%7C%20Containers-14C8A6?style=flat-square)](https://cairnetp.com)
 [![Architecture](https://img.shields.io/badge/Architecture-Dual--Runtime%20Sandbox-7C5AED?style=flat-square)](https://cairnetp.com/#architecture)
-[![Compliance](https://img.shields.io/badge/Compliance-EU%20AI%20Act%20%7C%20NIST%20AI%20RMF%20%7C%20SOC%202-061220?style=flat-square)](https://cairnetp.com/compliance.html)
+[![Evidence](https://img.shields.io/badge/Evidence-Auditor--verifiable%20export-061220?style=flat-square)](https://cairnetp.com/compliance.html)
+[![Licence](https://img.shields.io/badge/Licence-BUSL--1.1-F5A623?style=flat-square)](LICENSE)
 [![Website](https://img.shields.io/badge/Website-cairnetp.com-blue?style=flat-square)](https://cairnetp.com)
 
 **We help organisations trust AI.**  
@@ -29,7 +30,7 @@ CAIRN resolves this by operating as an unbypassable intermediary layer:
 * **Default-Deny Ingress**: Intercepts every tool invocation, shell command, code execution request, and outbound network attempt before host exposure.
 * **Dual-Runtime Hardware Sandboxes**: Dispatches unverified workloads into ephemeral Linux Docker containers or native Windows Sandbox Hyper-V micro-VMs.
 * **Tiered Assurance Verification**: Evaluates actions across a structured 6-tier ladder from unverified strings to deterministic, repeatable outcomes.
-* **Cryptographic Decision Ledgers**: Produces tamper-evident audit trails with SHA-256 decision records to satisfy regulatory mandates (EU AI Act, SOC 2, ISO 42001).
+* **Cryptographic Decision Ledgers**: Produces tamper-evident audit trails with SHA-256 decision records, exportable as a bundle your auditor can verify without running CAIRN.
 
 ---
 
@@ -44,7 +45,7 @@ The stacked cairn mark represents the 4-tier execution architecture:
                              |
                              v
          +---------------------------------------+
-         |         2. GOVERNANCE LAYER           |  Dynamic RBAC, Egress Gate & ACLs
+         |         2. GOVERNANCE LAYER           |  Autonomy Ceilings, Egress Gate & ACLs
          +-------------------+-------------------+
                              |
                              v
@@ -59,7 +60,7 @@ The stacked cairn mark represents the 4-tier execution architecture:
 ```
 
 1. **Tier 1: Intent & Ingress Gate** — Ingests user and agent intent, validates parameter schemas, performs Abstract Syntax Tree (AST) parsing, and filters prompt injection vectors.
-2. **Tier 2: Policy & Governance Engine** — Evaluates organisational policies in microseconds, applying credential redaction, egress domain whitelisting, and strict least-privilege RBAC.
+2. **Tier 2: Policy & Governance Engine** — Evaluates signed organisational policy, applying credential redaction, egress domain allow-listing, and operator-declared autonomy ceilings. Measured at **0.20–0.26 ms (p50)** for a decision that does not run code. Role-based access control is **not built** — it arrives in v3.0, and identity today is the operating-system user.
 3. **Tier 3: Dual-Runtime Sandbox Execution** — Dynamically routes workloads to read-only Linux Docker containers or isolated Windows Sandbox Hyper-V micro-VMs.
 4. **Tier 4: Cryptographic Evidence Ledger** — Generates signed SHA-256 decision records, state-delta hashes, and real-time SIEM event streams.
 
@@ -78,6 +79,14 @@ Every recommendation and automated action is graded across 6 deterministic assur
 | **4** | `[REPRODUCIBLE]` | **Deterministic** | Repeated runs verified to produce identical results across independent seeds. |
 | **5** | `[VERIFIED]` | **Idempotent** | State mutations proven safe to repeat without system side-effects. |
 
+**These are grades an action is assigned, not stages every action passes
+through.** What a given install can actually reach depends on what is present on
+the machine: tiers 2 and above need Docker or Windows Sandbox, and where neither
+is available the result is recorded as `static_only` with the reason — never
+silently downgraded to a pass. Tiers 4 and 5 are reached rarely by design; the bar
+for promoting work into the reusable skill library is tier 4, and on a stock
+install nothing has cleared it.
+
 ---
 
 ## Quickstart
@@ -92,7 +101,19 @@ Every recommendation and automated action is graded across 6 deterministic assur
 
    It confirms that every file matches the hash recorded when it was built, and that the hash manifest carries a valid signature from the key that signed previous CAIRN releases.
 
-3. **Run the installer.** Read the note below on the Windows warning first.
+3. **Install it.**
+
+   *Windows* — run `CAIRN-Trust-Fabric-Setup-X.Y.Z.exe`. Read the note below on
+   the Windows warning first.
+
+   *Linux (x64)* — `sudo apt install ./cairn-trust-fabric_X.Y.Z_amd64.deb`, or
+   make the `.AppImage` executable and run it. **Three controls are absent on
+   Linux rather than equivalent** — PowerShell structural analysis does not exist,
+   sandboxed verification needs a Docker socket, and secret protection is weaker
+   than DPAPI. CAIRN records each of these rather than reporting a pass; the
+   deployment guide states them in full.
+
+   *macOS* — not built. The build script exists and has never been run.
 
 4. **Tell CAIRN which of your systems matter.** It ships with nothing declared, so
    it grades an action by what kind of thing it is rather than by what it would
@@ -125,7 +146,17 @@ We are not asking you to take that on trust. Verify the download instead.
 
 ## Enterprise Compliance Mappings
 
-CAIRN Trust Fabric translates regulatory directives into cryptographic runtime boundary checks:
+**CAIRN holds no certification, and none is in progress.** It is not SOC 2
+certified, not ISO 27001 certified, and not "EU AI Act compliant" — no such claim
+is made anywhere in this project, and any material that appears to make one is
+wrong. Certification is a statement about an organisation, awarded by an auditor,
+and CAIRN has not been through that process.
+
+What CAIRN does is narrower and checkable: it **produces the evidence your auditor
+asks for**, so that *your* controls can be demonstrated. The mappings below are
+from control text to the mechanism that generates evidence relevant to it — they
+are a starting point for a conversation with an assessor, not a substitute for
+one.
 
 * **EU AI Act (Regulation 2024/1689)**: Article 14 (Human Oversight & Deterministic Override), Article 15 (Accuracy, Robustness & Cybersecurity), Article 12 (Automatic Record-Keeping).
 * **NIST AI RMF 1.0**: GOVERN 1.1–1.6, MAP 2.1, MEASURE 2.5, MANAGE 2.2.
@@ -157,19 +188,47 @@ If the verifier prints a different fingerprint, stop and report it via [SECURITY
 
 ---
 
-## Commercial Licensing & Enterprise Support
+## Licence
 
-CAIRN Trust Fabric is distributed as open documentation, architecture, and issue tracking with proprietary compiled runtime binaries.
+CAIRN Trust Fabric is published under the **[Business Source License 1.1](LICENSE)**.
+It is **source-available**, not OSI open source, and the difference is worth
+stating plainly rather than leaving to the licence text:
 
-For multi-node enterprise licences, sovereign air-gapped deployments, and custom LLM sandbox integrations, visit the official portal:
-* **Licensing Overview**: [cairnetp.com/licensing.html](https://cairnetp.com/licensing.html)
-* **Platform Inquiries**: [cairnetp.com](https://cairnetp.com)
+| You may | You may not |
+| --- | --- |
+| Run CAIRN in production, including commercially | Offer CAIRN to third parties as a hosted or managed service |
+| Modify it and self-host your modifications | Remove or circumvent the licence-key functionality |
+| Read, audit and fork the source | Use the CAIRN name or logo for your own product |
+| Use it internally at any scale, at no cost | — |
+
+**Each version converts automatically to Apache 2.0 on 2030-08-23**, four years
+after release. Nothing published under these terms stays restricted permanently.
+
+This is deliberate rather than defensive. CAIRN asks organisations to place a
+governance layer in front of their AI systems, and a governance layer nobody can
+read is a governance layer nobody should trust — so the source is open to
+inspection, audit and modification. What the licence protects is the commercial
+surface, not the reader.
+
+The distributed binaries are Electron applications; the JavaScript inside them is
+not compiled or obfuscated, and this project does not pretend otherwise. **The
+licence is the protection, not the packaging.**
+
+"CAIRN", "CAIRN Trust Fabric" and the stacked cairn logo are trademarks. See
+[NOTICE](NOTICE) — a fork is welcome and needs its own name.
+
+### Commercial licensing & enterprise support
+
+For multi-node enterprise licences, air-gapped deployment, terms that differ from
+the above, or custom LLM sandbox integrations:
+* **Licensing overview**: [cairnetp.com/licensing.html](https://cairnetp.com/licensing.html)
+* **Platform enquiries**: [cairnetp.com](https://cairnetp.com)
 
 ---
 
 <div align="center">
 
 **CAIRN Trust Fabric** • *Secure • Orchestrate • Automate*  
-(c) 2026 CAIRN ETP. All rights reserved.
+(c) 2026 CAIRN Enterprise Systems. Source-available under [BUSL 1.1](LICENSE).
 
 </div>
