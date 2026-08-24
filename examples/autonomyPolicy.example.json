@@ -3,6 +3,7 @@
   "_ladder": "0 OBSERVE · 1 ANALYSE · 2 RECOMMEND · 3 PREPARE · 4 EXECUTE_WITH_APPROVAL · 5 EXECUTE_AUTONOMOUSLY",
   "_whatAnActionNeeds": "A read needs ANALYSE. A write needs PREPARE. Anything that executes — including a tool CAIRN does not recognise — needs EXECUTE_WITH_APPROVAL. Levels 4 and 5 differ by exactly one thing: at 4 a person is asked, at 5 they are not.",
   "_howRulesCombine": "The LOWEST matching ceiling wins, not the most specific. Adding a rule can therefore only ever narrow what is permitted, never widen it — so a narrow permissive exception cannot silently override a broad restriction. If you want to permit more, raise the ceiling that is currently binding rather than adding an exception.",
+  "_whoARuleAppliesTo": "Write user:<name> to match the operating-system username, or role:<name> to match a role declared in vault/principal.json. A bare name still works and is matched against BOTH, which is why a rule written for a role could also match a user of that name; it is reported as deprecated when you preview a policy. Use * for everyone.",
   "_theModelHasNoSay": "Levels are resolved from the action class, the protected-target class and the OS principal. None is supplied by a model, and the resolver has no parameter through which model output could arrive.",
 
   "policyVersion": 1,
@@ -32,12 +33,12 @@
       "note": "Unattended execution is permitted only for this service account, and only where no protected target was matched. targetClass '*' matches every action including one that touched nothing declared.",
       "actionClass": "execute",
       "targetClass": "*",
-      "identity": "cairn-build-agent",
+      "identity": "user:cairn-build-agent",
       "maxLevel": "EXECUTE_WITH_APPROVAL"
     },
     {
       "id": "AL-004",
-      "note": "identity matches the OS username or the role. Reading is unrestricted for everyone; stated explicitly so the intent is on the record rather than inferred from the absence of a rule.",
+      "note": "Reading is unrestricted for everyone; stated explicitly so the intent is on the record rather than inferred from the absence of a rule.",
       "actionClass": "read",
       "targetClass": "*",
       "identity": "*",

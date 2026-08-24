@@ -1,0 +1,19 @@
+{
+  "_readme": "Copy to vault/principal.json and edit. CAIRN never reads this file from examples/. With no principal declared, role and clearance fall back to the CAIRN_ROLE and CAIRN_CLEARANCE environment variables, and then to build defaults — every decision record says which of the three answered.",
+
+  "_whatThisIsFor": "The autonomy ladder can match a rule against your ROLE (role:<name>). Before v2.6.0 that role came from an environment variable, which meant a desktop shortcut, a shell, a parent process or a scheduled task could all decide it. Declaring it here narrows that to whoever can write this vault — which is already whoever can rewrite autonomyPolicy.json, the ladder the role is checked against.",
+
+  "_whatThisIsNot": "This does not authenticate you. Declaring your own role in your own vault is still you declaring your own role, and anyone who can write this directory can change this file. CAIRN records every attribute's SOURCE — os, vault, asserted or builtin — so a decision record never presents a declared role as a verified one. Real authentication means SSO, which is not built.",
+
+  "_whatYouMayNotDeclare": "username, id and sid. Those come from the operating system, and the username is what the ledger records as the actor for every decision. A file that declares one is REFUSED rather than ignored, because ignoring it silently would leave you believing an impersonation had taken effect.",
+
+  "principalVersion": 1,
+
+  "roles": ["platform-engineer", "on-call"],
+  "_roles": "An array, and plural on purpose: real role models are plural, and with a single role you would have to invent a composite for every combination. A ladder rule matches if ANY role you hold matches. Holding more roles can therefore only ever LOWER a ceiling, never raise one, because every ladder rule is a restriction. A role may not contain a colon — the selector is written role:<name>, so such a role could never be matched.",
+
+  "clearance": "CONFIDENTIAL",
+  "_clearance": "One of UNCLASSIFIED, INTERNAL, CONFIDENTIAL, SECRET, TOP_SECRET. Anything else is refused rather than defaulted, because an unrecognised clearance would otherwise score as INTERNAL and read as a real level.",
+
+  "_capabilities": "OPTIONAL, and omitted here on purpose so this example grants what the build grants. Adding it can only ever take permissions AWAY: the effective set is what the build grants INTERSECTED with what you list, so listing something the build does not grant gains nothing. Use it to make an installation read-only: \"capabilities\": [\"read\"]. Valid names are read, write and execute. An empty list is refused — it would refuse every tool, which is a node that does not work."
+}
