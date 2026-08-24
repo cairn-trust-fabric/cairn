@@ -6,6 +6,101 @@ Versions are set only by `node scripts/version.js`, which is the single source o
 `package.json`, `src/version.js` and the installer names. `npm run build` refuses
 to package a version that has no section here — see `scripts/check-version.js`.
 
+## [2.6.0] - 2026-08-24
+
+**You can now tell CAIRN who you are, in a file you control — and every decision
+it records says whether that was checked or merely claimed.**
+
+This is the first part of the work that turns CAIRN from a single-user desktop
+tool into something an organisation can deploy. Everything here is backwards
+compatible: if you add none of the new files, this release behaves exactly as
+2.5.1 did.
+
+### Added
+
+- **Declare your role and clearance in `vault/principal.json`.** Previously these
+  came from the `CAIRN_ROLE` and `CAIRN_CLEARANCE` environment variables, which
+  meant a desktop shortcut, a shell, a parent process or a scheduled task could
+  all decide them. Now they are declared in a file inside your vault, alongside
+  the autonomy policy they are checked against.
+
+  You may hold **several roles at once** — `"roles": ["developer", "on-call"]` —
+  and an autonomy rule matches if any of them applies. The file cannot declare
+  your username: that comes from the operating system, it is what appears in the
+  audit trail, and a file that tries to set it is refused rather than quietly
+  ignored.
+
+- **Autonomy rules can now say which kind of principal they mean.** Write
+  `"identity": "user:alice"` or `"identity": "role:auditor"`. Previously a bare
+  name was matched against both, so a rule written for a *role* also applied to a
+  *user* of that name. Bare names still work and are reported as out of date when
+  you preview a policy.
+
+- **Your vault records who first opened it.** If you open a vault belonging to
+  someone else, CAIRN tells you at startup and writes it to the audit trail. It
+  does **not** refuse — see "What this does not do" below.
+
+- **You can hold fewer permissions than CAIRN grants by default.** List
+  `"capabilities": ["read"]` in `vault/principal.json` to stop this installation
+  running or writing anything. The list can only ever take permissions away.
+
+- **A new endpoint, `GET /api/trust/vault-owner`,** reporting who owns the vault
+  and who is using it.
+
+### Changed
+
+- **The audit trail now records what each autonomy limit rested on.** When a rule
+  limits what the agent may do, the record says which attribute matched — your
+  username or your role — and whether that attribute came from the operating
+  system, from a file you wrote, or from an unverified claim. Nothing about which
+  actions are permitted has changed; the record simply stops presenting checked
+  and unchecked evidence identically.
+
+### Fixed
+
+- **Policy preview reported that identity-based rules would change nothing.** If
+  you used *Preview* on an autonomy policy containing any rule naming a user or a
+  role, the answer was always zero, with the explanation that either the limits
+  sat above everything in your history or your history did not exercise them.
+  **Both explanations were wrong** — the preview was never told which principal
+  to replay your history as, so those rules matched nothing.
+
+  **If you previewed a policy with identity rules before 2.6.0, the result
+  understated what it would have stopped.** Preview now replays each recorded
+  action as the principal who actually performed it. Rules keyed to a *role* are
+  reported as not answerable from history — the audit trail records who acted,
+  never what role they held — rather than being counted as no match. Supply the
+  principal, or samples of your own, for a complete answer.
+
+- **CAIRN described your identity as coming from the operating system, and only
+  half of it did.** Your username and Windows account identifier do. Your role and
+  clearance came from environment variables that anything launching CAIRN could
+  set. The documentation said otherwise in several places and has been corrected.
+
+- **A rule written for a role also matched a user of that name.** Under CAIRN's
+  autonomy model rules can only ever restrict, so the effect was someone being
+  limited when nobody intended it. Use the `user:` and `role:` prefixes above.
+
+### What this does not do
+
+- **It does not authenticate anyone.** Declaring your own role in your own vault
+  is still you declaring your own role, and anyone who can write to your vault can
+  change both new files. What changed is that fewer things can set it — a
+  shortcut, a shell or a scheduled task no longer can. Real authentication means
+  SSO, and that is still to come.
+- **The vault owner record is attribution, not access control.** It cannot keep
+  anybody out, and CAIRN does not pretend it can. It exists so that "this vault
+  belongs to someone else" is something the product can tell you.
+- **A licence's seat count is still recorded and still enforced nowhere.**
+  Counting installations requires an authenticated identity to attribute them to.
+- **There is still no automatic updating.** CAIRN tells you a new version exists;
+  you download and install it yourself.
+- **Nothing is code-signed on any platform.** Windows will warn you on install.
+  Verify the download with `SHA256SUMS.txt`, its signature and
+  `verify-release.cjs`, all attached to this release.
+
+---
+
 ## [2.5.1] - 2026-08-23
 
 **Linux desktop packages are published for the first time**, and three defects
