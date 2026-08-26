@@ -6,6 +6,52 @@ Versions are set only by `node scripts/version.js`, which is the single source o
 `package.json`, `src/version.js` and the installer names. `npm run build` refuses
 to package a version that has no section here — see `scripts/check-version.js`.
 
+## [2.7.0] - 2026-08-26
+
+### Added
+
+- **A pillar pinned to a specific host now prefers models that actually live
+  there.** Previously, pinning a role to a declared accelerator had no effect
+  on which model got assigned to it — the assignment logic never looked at
+  where you'd pinned that role, so it could hand it a model that only exists
+  on your desktop.
+- **You can declare how much memory a remote host has**, so a pillar pinned to
+  a smaller accelerator won't be assigned a model too large to fit. This is
+  optional: a host with nothing declared behaves exactly as before.
+- **Redesigned host controls** in Fleet Roles: a device picker plus a separate
+  "follow the shared default" checkbox, replacing one dropdown that conflated
+  the two. You're now warned proactively if the shared default host several
+  pillars rely on becomes unreachable, rather than only finding out mid-turn.
+- **New pillar icons** across the Fleet Roles panel and the left navigation,
+  and a communication-status indicator in place of the old text status pill.
+- **Search and map your own codebase.** CAIRN can now index a repository's
+  files, do full-text search across them, and trace which files import which
+  — useful when you want it to work with a project's own source rather than
+  only your notes and conversation history.
+
+### Changed
+
+- **SOTA recommendations now account for accelerators you've declared**,
+  rather than only ever measuring against this desktop's own memory.
+- **The task queue marks when a manual benchmark and an ordinary request
+  overlap**, closing a gap where the two could previously run concurrently
+  with no coordination between them.
+
+### Fixed
+
+- **A pillar that must never leave this machine could be assigned a model
+  that only exists on a remote host.** Three separate places that write a
+  model assignment trusted "known to the fleet" as "installed here" without
+  checking; all three now check.
+- **A race in the inference-host registry that could corrupt it under
+  concurrent writes** is closed with a proper file lock.
+- **The desktop app's boot screen no longer gives up early.** It previously
+  stopped waiting after a fixed 12 seconds and loaded a blank state even when
+  the server was still starting correctly; it now waits for a real answer and
+  shows progress instead.
+
+---
+
 ## [2.6.0] - 2026-08-24
 
 **You can now tell CAIRN who you are, in a file you control — and every decision
