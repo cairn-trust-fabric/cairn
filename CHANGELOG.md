@@ -6,6 +6,49 @@ Versions are set only by `node scripts/version.js`, which is the single source o
 `package.json`, `src/version.js` and the installer names. `npm run build` refuses
 to package a version that has no section here — see `scripts/check-version.js`.
 
+## [2.8.1] - 2026-08-29
+
+Every fix here was found by using the product against real requests, rather than
+by its automated checks — which reported no problem while all of these were live.
+Two of them were introduced by 2.8.0 itself, hours earlier.
+
+### Fixed
+
+- **One unreachable inference host made the entire fleet unavailable.** If the
+  host you set as the default was switched off, CAIRN reported its model
+  registry as empty and left every pillar with no model — even when another
+  declared host on the same machine was running and holding every model those
+  pillars name. It now checks every host you have declared before concluding
+  anything, continues with the ones that answer, and says plainly which host is
+  missing and that models living only there are unavailable.
+- **A model's capabilities were read before they had been measured.** Tool-calling
+  support is probed shortly after startup, and until that probe finished the
+  answer read as "no". On the boot pass this rejected valid pillar assignments —
+  three of them, seconds before the same run reported the probe complete. An
+  unmeasured capability is now treated as unmeasured rather than as absent.
+- **A corrected tool call could silently lose what you actually said.** New in
+  2.8.0: when a tool call is refused for using the wrong argument names, CAIRN
+  retries it once with corrected names. Asked to remember a project codename, the
+  correction renamed the arguments properly and dropped the codename itself,
+  then reported the retry as successful. A retry that no longer carries a value
+  from your original request is now abandoned rather than run, and the reason
+  says which value went missing.
+
+### Known issues, found in the same run and not yet fixed
+
+Stated here rather than left out, because a user who hits one is entitled to know
+it is known:
+
+- Asking for something read-only can still be routed to a command that generates
+  and runs a script, which is slower and asks for approval it should not need.
+- A question with a settled answer can be routed to a web search, and if that
+  search returns nothing useful the answer is lost rather than falling back to
+  what the model already knows.
+- An informational question about a pillar can be misread as a request about a
+  saved skill, and create one.
+
+---
+
 ## [2.8.0] - 2026-08-29
 
 Three things this release fixes were reported by an operator using CAIRN, not
