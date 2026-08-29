@@ -6,6 +6,88 @@ Versions are set only by `node scripts/version.js`, which is the single source o
 `package.json`, `src/version.js` and the installer names. `npm run build` refuses
 to package a version that has no section here — see `scripts/check-version.js`.
 
+## [2.8.0] - 2026-08-29
+
+Three things this release fixes were reported by an operator using CAIRN, not
+found by its tests. Each is written up here in the terms the operator would use.
+
+### Added
+
+- **CAIRN now tells its router what each tool's inputs are called.** It never
+  did. The router had to infer parameter names from a tool's description, and a
+  quarter of tool calls in a replay of the audit log had supplied arguments the
+  tool could not use. The gate that catches those calls was added earlier and
+  made the failures visible without removing the need to guess; this removes it.
+- **A tool call refused for a wrong argument name is now corrected and retried
+  once**, instead of the refusal text being handed to the model that writes your
+  reply. The retry goes through the same permission gate and approval prompt as
+  the original — a correction can never turn a refused read into something that
+  runs — and it happens once, not in a loop.
+- **A turn that fails now leaves a record in the audit trail.** Previously, if a
+  request errored, you saw the error in the chat and nothing whatsoever was
+  written to the audit log. A trail that records only the requests that went
+  well cannot answer the question people actually bring to it.
+- **CAIRN checks a model can do a pillar's job before using it there**, and
+  tells you when it declines one you chose. Each pillar already declared what it
+  needs — the vector-memory pillar an embedding model, the trust gate a model
+  small enough for its latency budget — and your own overrides were the one path
+  that skipped those checks entirely. Refusals appear on startup, in `/status`
+  and in the audit trail, naming the pillar, the model and the reason, so
+  nothing is quietly swapped behind your back.
+- **The vector-memory pillar now decides what does the embedding.** Its model
+  was fixed in code, so assigning a different one changed a label and nothing
+  else. Memories embedded by a different model are kept out of semantic
+  matching rather than silently scoring zero, and results say when that happened.
+- **Benchmark results explain themselves.** Each failing task now names what
+  went wrong — the tool that was never called, the arguments that did not
+  match, or the answer that missed — rather than a single percentage.
+
+### Changed
+
+- **The pillar icons in the top status pill are larger.** They are the only
+  indication of which pillar is working, and at the previous size most were
+  distinguishable only by outline.
+- **Model recommendations will not suggest an older generation than one you
+  already have installed.** Where your fleet holds a newer version of the same
+  model at the same size, that is what gets recommended.
+- **First-run setup no longer names example models in its prompt.** It asked for
+  current releases and then showed a list of older ones, which is what it
+  returned. It now describes what each pillar needs instead.
+
+### Fixed
+
+- **A simple question could produce two refusals and no answer.** A routing
+  mistake in a tool's arguments was correctly refused, and the refusal was then
+  handed to the model that writes your reply as though it were a result to
+  answer from. It returned nothing, and a second failure notice was printed on
+  top of the first.
+- **Benchmark scores were not comparable between models, and model assignment
+  ranked on them.** A model that happened to mention the expected answer inside
+  a tool argument had that task removed from its own total, so one model could
+  be scored out of 15 while another was scored out of 16. Separately, the
+  benchmark counted a model's written plan steps as tool calls, so "did it use
+  the right tool" was being checked against narration. **Scores recorded by
+  earlier versions are now treated as absent rather than low — re-run the fleet
+  assessment to replace them.**
+- **A crash in the handler for a request that had already gone wrong**, reachable
+  when the model that writes replies failed on a turn that used no tools.
+- **Re-running a script that had worked could be refused**, with a message
+  saying it had not gone through — something nothing had actually checked. Found
+  and corrected during development of this release.
+- **Approval prompts could fail to appear** on one of the two paths that render
+  them, so a request would wait for a decision on a dialog you were never shown.
+- On Windows, the account name CAIRN records for an action no longer includes
+  the machine or domain prefix.
+
+### Not in this release
+
+- Automatic updates. CAIRN does not check for, download or install new versions
+  by itself, and this release does not change that. Updating is a deliberate act.
+- macOS builds. `build:mac` has still never been run, so no macOS package exists
+  and none is published here.
+
+---
+
 ## [2.7.0] - 2026-08-26
 
 ### Added

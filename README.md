@@ -4,7 +4,7 @@
 
 ### The Enterprise Trust Fabric — Secure • Orchestrate • Automate
 
-[![Release](https://img.shields.io/badge/Release-v2.7.0-2562EB?style=flat-square)](https://github.com/cairn-trust-fabric/cairn/releases)
+[![Release](https://img.shields.io/badge/Release-v2.8.0-2562EB?style=flat-square)](https://github.com/cairn-trust-fabric/cairn/releases)
 [![Platform](https://img.shields.io/badge/Platform-Windows%20x64%20%7C%20Linux%20x64%20%7C%20Containers-14C8A6?style=flat-square)](https://cairnetp.com)
 [![Architecture](https://img.shields.io/badge/Architecture-Dual--Runtime%20Sandbox-7C5AED?style=flat-square)](https://cairnetp.com/#architecture)
 [![Evidence](https://img.shields.io/badge/Evidence-Auditor--verifiable%20export-061220?style=flat-square)](https://cairnetp.com/compliance.html)
