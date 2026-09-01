@@ -1083,7 +1083,7 @@ Until you declare something, most of what follows is inert — and says so.
   `enforceDefaultApprovalGate()`, `verifier.js` and `sandbox.js`. No such function
   existed and those files never read the policy.
 
-- **A file that described itself as an immutable ledger and was an array.**
+- **A file that described itself as an append-only hashed ledger and was an array.**
   `src/trust/decisionLedger.js` claimed to record "an append-only,
   cryptographically hashed decision trail". It holds records in memory, their hash
   chains to nothing, chain verification has never seen them, and they are
@@ -1665,7 +1665,7 @@ about what was downloaded.
   (the full lockup, with the wordmark as paths so it needs no font). Application
   icons, favicons and Apple touch icons are generated from the vector by
   `npm run build:icons`.
-- **Signed releases, and a verifier that does not require trusting CAIRN.**
+- **A signed checksum manifest, and a verifier that does not require trusting CAIRN.**
   `npm run release:sign` signs the hash manifest with an Ed25519 release key and
   ships `verify-release.cjs` beside the installers. It proves the files are
   unchanged and that the same key signed the previous release; it is explicit

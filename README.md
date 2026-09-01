@@ -219,8 +219,8 @@ licence is the protection, not the packaging.**
 
 ### Commercial licensing & enterprise support
 
-For multi-node enterprise licences, air-gapped deployment, terms that differ from
-the above, or custom LLM sandbox integrations:
+For enterprise licensing, air-gapped deployment, terms that differ from the above,
+or custom LLM sandbox integrations:
 * **Licensing overview**: [cairnetp.com/licensing.html](https://cairnetp.com/licensing.html)
 * **Platform enquiries**: [cairnetp.com](https://cairnetp.com)
 
