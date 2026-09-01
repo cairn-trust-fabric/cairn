@@ -6,6 +6,102 @@ Versions are set only by `node scripts/version.js`, which is the single source o
 `package.json`, `src/version.js` and the installer names. `npm run build` refuses
 to package a version that has no section here — see `scripts/check-version.js`.
 
+## [2.9.0] - 2026-09-01
+
+Work aimed at what an organisation, rather than one person, needs before it can
+deploy this. Two things an organisation also needs are **not** here and are named
+below rather than left for you to discover.
+
+### Added
+
+- **An action can be attributed to the person who took it.** Until now every
+  action was recorded against the account CAIRN itself runs as. On a single
+  desktop that is the right answer. Where several people reach one CAIRN over a
+  network it was not: the audit trail recorded which machine an action happened
+  on, not who took it, and two colleagues were indistinguishable in it. CAIRN can
+  now **verifies** an OIDC sign-in token issued by Microsoft Entra ID, Google or
+  AWS Cognito, and records the person it names. Acquiring that token stays the job
+  of whatever signs you in; CAIRN checks one it is handed and never asks for one.
+  Turned on in a configuration file, with a worked example supplied; off unless
+  you enable it.
+
+  **This has not been tested against a live identity provider.** The signature
+  checking is exercised properly, but the shape of the sign-in details each
+  provider sends is taken from their published documentation and tested only
+  against stand-ins. If a provider has changed one, CAIRN grants **no** role
+  rather than the wrong one — but you should treat your first sign-in as the test,
+  and check that the name recorded is the one you expect.
+
+- **An organisation can limit what a node is allowed to run and reach.** A signed
+  organisational policy could already cap daily cloud spend. It can now also
+  restrict which models a role may be backed by, and how many outside domains a
+  tool offered to an external agent may contact. These only ever *narrow* what a
+  machine permits — a node already set to allow less keeps allowing less.
+
+- **The audit trail now records the periods when CAIRN was not running.** The
+  chain proves the records that are there were not altered; it could say nothing
+  about records that were never written, because CAIRN was closed. Those periods
+  are now written down with a start and an end, so a gap is a stated fact rather
+  than an absence you would have to notice for yourself. A gap may be reported as
+  up to a minute longer than it was; it is never reported as shorter.
+
+- **Limits on external agents connecting to CAIRN.** Requests are rate limited,
+  and a refusal that is temporary now says so instead of looking final. Where a
+  tool offered to an outside agent reaches the network, the addresses it may
+  contact are declared in advance and enforced — previously CAIRN decided whether
+  the agent could call the tool, and the tool then contacted whatever it liked.
+
+### Changed
+
+- **A status field was reporting that you were authenticated when nothing had
+  authenticated you.** CAIRN treated your own written statement of who you are —
+  a file you control — as sufficient. That was deliberate, and the *label* on it
+  was wrong. It is now two separate answers: whether every detail is better than
+  an unchecked claim, and whether anyone outside this machine actually verified
+  it. Both are shown, because either one alone invites the wrong reading.
+
+- **Evidence bundles say more about their own limits.** They now include when
+  CAIRN was and was not watching, and what each record's actor was based on —
+  which differs for records written before version 2.6.0.
+
+- The Sovereign edition has been withdrawn. What it offered over Enterprise was
+  not real, which made it Enterprise at a different price.
+
+### Fixed
+
+- **Evidence bundles could not be verified by the instructions inside them.** The
+  bundle told you to recalculate each record's fingerprint and compare; doing that
+  reproduced none of them, because the exported records left out three of the
+  values the fingerprint covers. Anyone who followed the instructions saw what
+  looked like a tampered audit trail. If you have a bundle from an earlier version
+  that appeared to fail verification, this is the likely reason — export it again.
+
+- **A stage marked as "blocking" did not block.** CAIRN's own table said eight
+  places would stop work that broke a rule. One of them did. All eight now behave
+  as the table says.
+
+- **A model was reported as unavailable when it was reachable.** One switched-off
+  inference host could make CAIRN report every model as missing, including those
+  held on machines that were running. It now asks every host you have declared,
+  continues with the ones that answer, and names the one that did not.
+
+- **A model retired by its provider is now noticed** rather than left assigned.
+
+- Answering is substantially faster on the common path, and several problems found
+  by using the product are fixed — among them a question that could change stored
+  state, and two different tools that shared one name.
+
+### Still not here, deliberately
+
+- **The installers are not code-signed.** Windows will warn on first run. Verify
+  the download instead — see the README. This needs a certificate from a
+  certificate authority, which is a purchase and an identity check, not an
+  engineering task.
+- **There is no automatic update**, for the reason given in the README: an updater
+  with no signature to check is a worse problem than no updater. Download and
+  verify again to move to this version.
+- **There is no macOS build.**
+
 ## [2.8.1] - 2026-08-29
 
 Every fix here was found by using the product against real requests, rather than
