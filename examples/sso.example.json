@@ -1,0 +1,34 @@
+{
+  "_readme": "Copy to vault/sso.json and edit. CAIRN never reads this file from examples/. With no SSO configured, identities are graded `os` and `vault` and `identityAuthenticated` is FALSE — which is the honest answer, not a degraded one.",
+
+  "_whatCairnDoesAndDoesNot": "CAIRN VERIFIES an OIDC ID token it is handed: algorithm allow-list, key from the published JWKS, signature, then issuer/audience/expiry — in that order, because a claim read before the signature is just base64 anybody can write. CAIRN does NOT perform the login redirect, PKCE, or token refresh. Acquiring the token is the host application's job; building half an authorisation flow here would be a second way in, which is what ADR-0019 warns against.",
+
+  "_neverTestedAgainstARealProvider": "READ THIS BEFORE RELYING ON IT. The cryptography is genuinely tested — tests/sso_verifier.test.js mints real signatures with real keypairs and refuses `alg: none`, HMAC-with-the-public-key, wrong keys, tampered payloads and expired tokens. What has NOT been tested is that Entra, Google or Cognito actually emit the claim names below: no real identity provider has ever been contacted. The claim shapes come from published documentation. docs/CLAIMS.md carries this as Partial in those words.",
+
+  "_whatBreaksIfAClaimNameIsWrong": "The mapping, not the verification. A token would verify and then produce no role — which grades as ABSENT, never as a role the token did not carry. Absence is not a grant, here as everywhere else.",
+
+  "enabled": false,
+  "_enabled": "false ships deliberately. Enabling SSO without a reachable issuer would make every login fail closed, which is correct behaviour and a terrible first-run experience.",
+
+  "provider": "entra",
+  "_provider": "One of: entra (Microsoft Entra ID), google (Google Cloud Identity / Workspace), cognito (AWS Cognito). Each spells the same three facts differently — see src/trust/ssoProviders.js.",
+
+  "issuer": "https://login.microsoftonline.com/00000000-0000-0000-0000-000000000000/v2.0",
+  "_issuer": "Must match the token's `iss` EXACTLY. A validly signed token from another tenant is still the wrong token, and is refused with ISSUER_MISMATCH.",
+
+  "audience": "00000000-0000-0000-0000-000000000000",
+  "_audience": "Your application (client) id. A token minted for a different application is not a login to this one.",
+
+  "jwksUri": "https://login.microsoftonline.com/00000000-0000-0000-0000-000000000000/discovery/v2.0/keys",
+  "_jwksUri": "Where the issuer publishes its signing keys. CAIRN does not fetch this itself — the host application supplies the keys to the verifier. Recorded here so the operator and the host agree on which endpoint is authoritative.",
+
+  "roleMap": {
+    "CairnOperator": "operator",
+    "CairnAuditor": "auditor"
+  },
+  "_roleMap": "Provider group or app-role -> CAIRN role. An UNMAPPED group yields no role at all, never a default one: a default would silently grant whatever it was to every group nobody has thought about. Entra puts app roles in `roles` and directory groups in `groups`, and only when the app registration asks for them. Google ID tokens carry NO group claim — roles there must come from vault/principal.json and will grade `vault`, not `idp`. Cognito uses `cognito:groups`.",
+
+  "_provenance": "A username from a verified token grades `idp` — the first grade in this product's history representing a check by someone other than the subject. A role grades `idp` ONLY when it came from a mapped claim; a role the operator supplies themselves is a vault fact wearing an SSO login, and grading it `idp` would be exactly the overclaim this feature exists to remove.",
+
+  "_theOtherFourGrades": "os (the operating system said so) · vault (the operator declared it in a file they govern) · asserted (claimed by whoever supplied it, unverified) · builtin (a constant in the build). Only `idp` is authentication. Until 2026-09-01 `identityAuthenticated` returned true for `os` and `vault` too, so a self-declared role reported as authenticated — that was a naming defect and is corrected; `identityBasisChecked` now answers the weaker question separately."
+}

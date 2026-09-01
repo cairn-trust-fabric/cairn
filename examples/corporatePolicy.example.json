@@ -1,0 +1,41 @@
+{
+  "_readme": "A SIGNED organisational policy. Copy to vault/corporate_policy.json together with the issuing organisation's public key at vault/corporate_policy_key.pem. CAIRN never reads this file from examples/, and it will REFUSE a policy whose signature does not verify — an unverified policy is not a weaker policy, it is no policy, and the gate fails closed on one.",
+  "_howItDiffers": "The other three example files are the OPERATOR's own declarations about their own machine. This one is not: it is issued and signed by an organisation, and the operator cannot edit it without breaking the signature. That is what makes it a control rather than a setting.",
+  "_mint": "Generate a keypair with generateCorporateKeypair() and sign with signCorporatePolicy() — see src/trust/policyManager.js. Keep the private key off the machines the policy governs; a node holding the signing key can sign its own exemption.",
+  "_expiry": "An expired policy STOPS BEING ENFORCED and the decision record says so. That is deliberate: a policy nobody renewed should not silently govern forever, and CAIRN must not pretend a lapsed rule is still in force. Set expiresAt to null only if you mean 'until revoked'.",
+
+  "organization": "Example Corp Security",
+  "expiresAt": "2027-01-01T00:00:00.000Z",
+
+  "rules": {
+    "_ceilingsVsProhibitions": "The rules below are two different kinds. blockedCommands, forbiddenPaths and mandatoryApprovals ADD prohibitions — an empty list adds nothing. allowedModelBackings and maxInboundEgressDomains are CEILINGS — an empty list means the organisation expressed no opinion and restricts nothing. That asymmetry is deliberate: a ceiling that forbade everything by omission would present as a broken product and the operator would delete the policy, losing the rules you did care about.",
+
+    "blockedCommands": ["Invoke-Mimikatz", "(?i)rm\\s+-rf\\s+/"],
+    "_blockedCommands": "Regular expressions, matched against the RESOLVED execution payload — not the raw arguments. A command hidden inside a saved script is still matched, which is the point.",
+
+    "forbiddenPaths": ["\\\\Windows\\\\System32", "/etc/shadow"],
+    "_forbiddenPaths": "Path fragments. An invocation naming a path containing any of these is denied.",
+
+    "mandatoryApprovals": ["execute_command", "run_saved_script"],
+    "_mandatoryApprovals": "Tool-name patterns that ALWAYS require a human approval, which no local whitelist can satisfy. The prompt is obtained inside the gate, so the ledger records the verdict a person actually gave rather than the fact that one was requested.",
+
+    "allowedPathPrefixes": [],
+    "_allowedPathPrefixes": "When non-empty, an invocation naming a path that cannot be established as sitting under one of these prefixes is denied. Empty here means no prefix restriction.",
+
+    "enforceDockerIsolation": false,
+    "_enforceDockerIsolation": "When true, every execute-capability tool that would run code on the host is denied outright. Set this on nodes that must never execute anything locally.",
+
+    "allowedModelBackings": ["local:*", "cloud:anthropic:*"],
+    "_allowedModelBackings": "MODEL LOCK-IN. Patterns, not exact names, because a model list goes stale in weeks and an organisation approves a PROVIDER far more often than a version. 'local:*' is anything on the machine; 'cloud:anthropic:*' is any Anthropic model; 'cloud:openai:gpt-4o' is exactly that one. An operator may choose freely inside this and cannot choose outside it. Omit or leave empty to permit any backing.",
+
+    "maxInboundEgressDomains": ["github.com", "api.anthropic.com"],
+    "_maxInboundEgressDomains": "MCP SCOPE. Hosts a served agent may address, binding every client in vault/mcpInboundClients.json. The effective scope is the INTERSECTION of what the operator declared and what this permits — a client may hold fewer hosts than the organisation allows, never more. A client asking for '*' gets this list rather than everything, so a node cannot opt out by asking for more than the policy grants. Matching is on a dot boundary: 'github.com' admits 'api.github.com' and refuses 'evil-github.com'. Omit or leave empty to place no ceiling.",
+
+    "maxDailyCloudSpendUsd": 25,
+    "_maxDailyCloudSpendUsd": "SPEND. The binding daily cloud ceiling is the LOWER of this and whatever the operator set, so an operator cannot raise their own limit above it. It applies when the operator has set no limit at all. Enforced immediately before provider dispatch — cloud calls never pass through the tool gate, so that is the only boundary the spend actually crosses. Set null for no organisational ceiling."
+  },
+
+  "_signature": "A real policy carries a `signature` field alongside `organization`, `expiresAt` and `rules`. This example is deliberately UNSIGNED so that copying it into a vault without signing it fails loudly rather than appearing to work.",
+
+  "_whatIsNotHere": "There is no per-user role assignment, and that is a considered position rather than an omission. On a single-operator desktop the person assigned a role is the person who writes the file assigning it. What an organisation can actually bind from outside the machine is what this file contains: how much it may spend, which models may back it, where its agents may reach, and what it must never run."
+}

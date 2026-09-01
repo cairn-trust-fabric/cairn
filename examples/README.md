@@ -12,7 +12,8 @@ CAIRN never reads anything from this directory.
 | --- | --- | --- |
 | Protected targets | `vault/protectedTargets.json` | Consequence is recorded as **not assessed**. Risk is graded from mechanism alone |
 | Autonomy ladder | `vault/autonomyPolicy.json` | The ladder is **not enforced**. No maximum level is applied |
-| Corporate policy | `vault/corporate_policy.json` | No corporate rules are in force. See below — this one must be **signed** |
+| Corporate policy — `corporatePolicy.example.json` | `vault/corporate_policy.json` | No corporate rules are in force. See below — this one must be **signed**, and an unverified policy is refused rather than downgraded |
+| SSO — `sso.example.json` | `vault/sso.json` | No SSO. Identities grade `os`/`vault` and `identityAuthenticated` is **false**, which is the honest answer |
 | Principal | `vault/principal.json` | Your role and clearance come from environment variables, then from build defaults. Every decision record says which |
 
 Where the vault is depends on the installation; `CAIRN_VAULT_DIR` overrides it.
