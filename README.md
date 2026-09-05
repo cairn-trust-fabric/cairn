@@ -145,6 +145,20 @@ We are not asking you to take that on trust. Verify the download instead.
 
 ---
 
+## Documentation
+
+| | |
+| --- | --- |
+| [Installation & Deployment Walkthrough](docs/ENTERPRISE_INSTALLATION_WALKTHROUGH.md) | Download, verify, install, and what CAIRN tells you is missing |
+| [Enterprise Deployment Guide](docs/ENTERPRISE_DEPLOYMENT_GUIDE.md) | Per-machine and headless-server models, services, signed corporate policy |
+| [Enterprise User Manual](docs/CAIRN_V2_ENTERPRISE_USER_MANUAL.md) | Concepts, the REST endpoints, and what 2.9.0 and 2.10.0 added |
+
+These are the same files the product ships with, and a check fails the build if
+the copies here ever differ from them. Each carries its own corrections in the
+open where a previous version overstated something.
+
+---
+
 ## Reading evidence from several machines
 
 Each machine exports its own signed evidence bundle. **`cairn-aggregate` reads a
