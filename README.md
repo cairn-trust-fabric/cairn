@@ -4,7 +4,7 @@
 
 ### The Enterprise Trust Fabric — Secure • Orchestrate • Automate
 
-[![Release](https://img.shields.io/badge/Release-v2.9.0-2562EB?style=flat-square)](https://github.com/cairn-trust-fabric/cairn/releases)
+[![Release](https://img.shields.io/badge/Release-v2.10.0-2562EB?style=flat-square)](https://github.com/cairn-trust-fabric/cairn/releases)
 [![Platform](https://img.shields.io/badge/Platform-Windows%20x64%20%7C%20Linux%20x64%20%7C%20Containers-14C8A6?style=flat-square)](https://cairnetp.com)
 [![Architecture](https://img.shields.io/badge/Architecture-Dual--Runtime%20Sandbox-7C5AED?style=flat-square)](https://cairnetp.com/#architecture)
 [![Evidence](https://img.shields.io/badge/Evidence-Auditor--verifiable%20export-061220?style=flat-square)](https://cairnetp.com/compliance.html)
@@ -31,6 +31,7 @@ CAIRN resolves this by operating as an unbypassable intermediary layer:
 * **Dual-Runtime Hardware Sandboxes**: Dispatches unverified workloads into ephemeral Linux Docker containers or native Windows Sandbox Hyper-V micro-VMs.
 * **Tiered Assurance Verification**: Evaluates actions across a structured 6-tier ladder from unverified strings to deterministic, repeatable outcomes.
 * **Cryptographic Decision Ledgers**: Produces tamper-evident audit trails with SHA-256 decision records, exportable as a bundle your auditor can verify without running CAIRN.
+* **Evidence across several machines**: Each machine signs its own bundle; a standalone reader checks every one independently and reports across them. There is no collector and no central database — see below.
 
 ---
 
@@ -141,6 +142,48 @@ We are not asking you to take that on trust. Verify the download instead.
 * **Suppression of the Windows warning.** Only a CA certificate does that, and there is not one.
 
 **There is no automatic update**, deliberately. An updater that installs unsigned code with no certificate to check against is a worse problem than not having an updater, so it is sequenced behind code signing. To update, download again and re-run the verifier.
+
+---
+
+## Reading evidence from several machines
+
+Each machine exports its own signed evidence bundle. **`cairn-aggregate` reads a
+folder of them, verifies every bundle independently, and reports per machine and
+across all of them.** A bundle that fails its own verification is named and left
+out of the totals rather than quietly dropped, and overlapping export windows do
+not count the same decision twice.
+
+It is a single file needing only Node.js — no CAIRN install, no dependencies and
+no network. In an installed build it sits at:
+
+```
+<install dir>\resources\app.asar.unpacked\tools\cairn-aggregate\cairn-aggregate.mjs
+```
+
+Copy it to wherever your evidence is collected, which does not have to be a
+machine running CAIRN.
+
+```
+node cairn-aggregate.mjs <folder-of-bundles> --pub <key.pem> --expect <nodes.txt> --stale-after 14
+```
+
+`--expect` takes the machines you believe you have, so one that sent nothing is
+reported rather than silently absent. `--stale-after` names any machine whose
+newest evidence is older than that many days — **the age of a record, not a check
+that anything is running.**
+
+**There is no collector and no central database, deliberately.** Each machine
+keeps and signs its own records; the reader checks them and can be re-run by
+anyone holding the bundles. Sending records to a collector would make their
+integrity depend on whoever ran it, which is the trust this design exists to
+remove. It also means the reader cannot see a machine that has never exported
+anything, and it says so rather than presenting what it can see as the whole
+estate.
+
+CAIRN can write each bundle to a folder you name on a schedule — a share, a
+synced folder, anywhere your existing tooling already moves files from. **CAIRN
+does not send anything anywhere:** there is no address, no credential and no
+network connection involved, and the copy on the machine is always written first.
 
 ---
 

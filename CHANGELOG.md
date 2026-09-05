@@ -6,6 +6,175 @@ Versions are set only by `node scripts/version.js`, which is the single source o
 `package.json`, `src/version.js` and the installer names. `npm run build` refuses
 to package a version that has no section here — see `scripts/check-version.js`.
 
+## [2.10.0] - 2026-09-05
+
+Evidence that says which machine it came from, and can be read across several of
+them without anyone having to be trusted to have collected it honestly.
+
+2.9.0 covered what an organisation needs before it can deploy this. This release
+covers what it needs afterwards: getting the records off more than one machine
+and reading them together. Two things an organisation also expects are **not**
+here and are named at the end rather than left for you to find.
+
+### Added
+
+- **Evidence from several machines can be read together.** A small standalone
+  reader takes a folder of exported evidence and reports per machine and across
+  all of them. It checks **every bundle on its own** before counting anything: a
+  bundle that fails its own verification is **named and left out of the totals**,
+  never quietly dropped. Bundles whose windows overlap do not count the same
+  decision twice.
+
+  **There is no server and no central database, and that is the design.** Each
+  machine keeps its own records and signs them; the reader checks them. Sending
+  them to a collector would make every record depend on whoever ran the
+  collector, which is exactly the trust CAIRN exists to remove. It also means the
+  reader cannot see a machine that has never exported anything — it says so,
+  rather than presenting the machines it can see as the whole picture.
+
+  The reader is a single file that needs only Node.js — no CAIRN install, no
+  dependencies to fetch, no network. It comes with the installer and can be
+  copied to wherever your evidence is collected, which does not have to be a
+  machine running CAIRN. The README says where to find it.
+
+- **Which machine produced a bundle is now part of what is signed.** You can give
+  a machine a name; the bundle carries it, along with a value derived from the
+  machine itself, and altering either afterwards breaks the seal. Previously a
+  folder of bundles from twenty machines carried no signed statement of whose
+  each one was — the filename might say, and a filename is not signed. Naming is
+  optional: an unnamed machine still exports and says it is unnamed, rather than
+  inventing a name from the hostname.
+
+- **Evidence can leave a machine on its own, to a folder you name.** Point CAIRN
+  at a file share, a synced folder, or anywhere your existing tooling already
+  moves files from, and it writes a signed bundle there on a schedule you set.
+
+  **CAIRN does not send anything anywhere.** There is no address, no credential
+  and no network connection involved, and a web address in that setting is
+  refused rather than quietly accepted. The copy on the machine is always written
+  first, so a share that is unreachable costs you the copy on the share and never
+  costs the machine its records.
+
+  It works out whether it is due from the last time it ran, rather than firing at
+  a set hour. A machine that was switched off for a fortnight exports the next
+  time it starts, instead of silently missing its turn.
+
+- **You can see which machines have gone quiet.** The reader can name any machine
+  whose most recent evidence is older than a number of days you choose. This is
+  the **age of a record**, not a check that anything is running: it cannot tell
+  you a machine is switched off, and its resolution is days. A machine that
+  stopped reporting is listed separately from one that never reported at all —
+  different problems that would otherwise look identical.
+
+- **An agent can carry a statement from its publisher about what it needs.** An
+  agent connecting to CAIRN from outside can present a manifest signed by
+  whoever published it. Where several agents are involved, their permissions are
+  intersected, so naming more of them can only ever *remove* permission, never
+  add it. Publishers can revoke, and a revocation list that cannot be read is
+  reported as unknown rather than treated as empty. **An agent connecting from
+  outside is never granted permission to run commands on the host**, whatever its
+  manifest asks for.
+
+- **Outside agents can connect over HTTP as well as a local pipe.** Both go
+  through the same single approval path as everything else. The name an agent
+  gives for itself can now be proved with a per-client token rather than taken on
+  trust; an existing setup without one keeps working and is recorded as
+  unverified rather than silently accepted as genuine.
+
+- **Time-limited trials.** A trial licence is issued, checked and enforced, and
+  its expiry is re-checked every time rather than once when CAIRN starts. The
+  status report says plainly that a licence is an evaluation, how many days
+  remain, and what survives its expiry — which is everything you have recorded.
+
+- **The status report tells you whether your evidence is reaching anywhere.**
+  Off, working, or failing, with the reason. Off is reported too: from the far
+  end of a shared folder, a machine nobody configured and a machine whose export
+  has broken look identical, and only one of them needs attention.
+
+### Changed
+
+- **Seat limits are enforced.** Until now a licence carried a number of seats,
+  displayed it, and turned nobody away. It now turns people away — and how it
+  does that matters more than the fact of it:
+
+  - The account CAIRN itself runs under is **never** refused. A limit must not
+    lock out the person administering the machine.
+  - Somebody who already holds a seat is never refused for coming back.
+  - The first person over the limit is **let in** for a 14-day grace period and
+    told, rather than refused on the day the limit is reached.
+  - If the number in use cannot be established, nobody is refused. Not knowing is
+    never treated as zero.
+  - A refusal is reported as a licensing matter rather than a permissions error,
+    so it points you at the licence instead of at your roles.
+
+  This is metering, not copy protection, and it has never been sold as the
+  latter. If your licence allows fewer people than sign in, you will be told
+  before anyone is turned away.
+
+- **Trial licences now include the Enterprise feature set.** A trial exists to
+  show what the product does. One that withheld the auditor-ready evidence export
+  would be asking you to imagine half of it.
+
+- **Exporting by hand and exporting on a schedule now produce the same thing**,
+  licensed and recorded the same way.
+
+### Fixed
+
+- **The status report could not tell you which version you were running.** Asking
+  for it returned an error instead of the answer, because of a wrong path to a
+  file. It has been that way since 2.4.0 and shipped in every release since — in
+  the one place whose whole job is to answer that question. The privacy summary
+  was broken in the same way and for the same reason. Both work now, and every
+  section you can ask for is checked automatically, so one that stops answering
+  fails the build rather than reaching you.
+
+- **One person could be recorded under two different names.** Depending on how
+  CAIRN was started, the same operator could appear in the audit trail twice — a
+  lookup that succeeded in one situation and fell back to a different name in
+  another. Records already written cannot be corrected: they are inside the hash
+  chain, which is the point of it. New records are consistent, and the trail can
+  now tell a person apart from one of CAIRN's own automated stages.
+
+- **A bundle whose seal was not checked no longer looks checked.** When reading
+  across machines, records that could not be verified are counted as their own
+  figure and never added to the verified one, so there is no single total that
+  implies more than was established.
+
+- **Several controls existed and were reached by nothing.** An internal review
+  found capabilities that were built, tested, and never actually called by the
+  running product. Each has been connected or removed. Two remaining cases are
+  written down as stated limits rather than quietly left.
+
+- **An adversarial security review of the new external-agent and licensing
+  work.** Nine findings, three of them serious. All are fixed, and each fix was
+  checked by reintroducing the original flaw and confirming that a test fails —
+  the detail of what was wrong is deliberately not published here, because older
+  versions remain downloadable. One finding is recorded as an open limit rather
+  than fixed, because the fix is a capability that does not exist yet. **If you
+  expose CAIRN to agents outside your machine, upgrade.**
+
+### Still not here, deliberately
+
+- **There is no central console.** Nothing collects from your machines, watches
+  them, or changes their settings from a distance. Moving the exported files is
+  your existing tooling's job, and there is no way to reconfigure or disable a
+  machine remotely — that is a much larger trust decision and it has not been
+  taken.
+- **The installers are not code-signed.** Windows will warn on first run. Verify
+  the download instead — see the README. This needs a certificate from a
+  certificate authority, which is a purchase and an identity check rather than an
+  engineering task.
+- **There is no automatic update.** An updater with nothing to check a signature
+  against is a worse problem than no updater. Download and verify again to move
+  to this version.
+- **There is no macOS build.**
+- **The installer itself is still not tested on a clean machine.** Each release is
+  exercised as a packaged application on a development machine; running the
+  installer end to end on a fresh Windows install is not part of that.
+- **Nothing here certifies anything.** CAIRN records what it did and whether the
+  record verifies. It does not assess you against a standard and it does not
+  claim any accreditation.
+
 ## [2.9.0] - 2026-09-01
 
 Work aimed at what an organisation, rather than one person, needs before it can
@@ -18,7 +187,7 @@ below rather than left for you to discover.
   action was recorded against the account CAIRN itself runs as. On a single
   desktop that is the right answer. Where several people reach one CAIRN over a
   network it was not: the audit trail recorded which machine an action happened
-  on, not who took it, and two colleagues were indistinguishable in it. CAIRN can
+  on, not who took it, and two colleagues were indistinguishable in it. CAIRN
   now **verifies** an OIDC sign-in token issued by Microsoft Entra ID, Google or
   AWS Cognito, and records the person it names. Acquiring that token stays the job
   of whatever signs you in; CAIRN checks one it is handed and never asks for one.
