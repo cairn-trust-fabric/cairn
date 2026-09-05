@@ -1,0 +1,34 @@
+{
+  "_comment": [
+    "ADR-0018 §5. Copy to vault/agents/revocations.json, sign it, and put the",
+    "publisher's Ed25519 public key at vault/agents/revocations.pem.",
+    "",
+    "A SIGNATURE PROVES PROVENANCE FOR EVER, including for a version now known to be",
+    "malicious. Verifying a manifest is necessary and not sufficient; this is what",
+    "says 'yes, and no longer'.",
+    "",
+    "A LIST THAT CANNOT BE FETCHED IS NOT AN EMPTY ONE. isRevoked() answers true,",
+    "false, or null for UNKNOWN, and every caller handles the third. The posture is a",
+    "deployment decision — CAIRN_AGENT_REVOCATION_POSTURE=strict refuses what cannot",
+    "be established, the default 'disclose' proceeds and puts revocationKnown:false",
+    "and the list's age on every decision record. Neither branch is silent.",
+    "",
+    "The list is SIGNED because an unsigned one would let anyone who can write the",
+    "vault un-revoke a compromised agent by deleting a line.",
+    "",
+    "versionRange: '*', an exact version, or <=x / <x / >=x / >x. A range this build",
+    "cannot parse yields UNKNOWN — not a pass (which would ignore a real revocation)",
+    "and not a fail (which would disable an agent on a typo)."
+  ],
+  "issuedAt": "2026-09-03T00:00:00.000Z",
+  "revocations": [
+    {
+      "agentId": "example-agent",
+      "publisher": "acme",
+      "versionRange": "<=1.3.9",
+      "revokedAt": "2026-09-02T00:00:00.000Z",
+      "reason": "Publisher signing key was compromised; 1.4.0 is signed with the replacement."
+    }
+  ],
+  "signature": "<base64 Ed25519 over the canonical JSON of every field except this one>"
+}
