@@ -6,6 +6,80 @@ Versions are set only by `node scripts/version.js`, which is the single source o
 `package.json`, `src/version.js` and the installer names. `npm run build` refuses
 to package a version that has no section here — see `scripts/check-version.js`.
 
+## [2.10.1] - 2026-09-06
+
+Three things that were true of 2.10.0 and should not have been.
+
+All three were found by using CAIRN rather than by reviewing it — two by walking
+it as a returning user and as someone doing an ordinary thing badly, and one from
+a crash on a real installation. **If you are running 2.10.0 on Windows, this
+replaces it.**
+
+### Fixed
+
+- **A tool that sends email was not covered by the outbound checks.** CAIRN's
+  gateway lets an external agent — Claude Code, Cursor — call tools on your
+  machine, and you declare which hosts those tools may reach. `email_send` was
+  not on the list of tools that reach the network, so neither the address it was
+  sending to nor what it was sending was checked. **An agent refused permission
+  to fetch a web page could put the same content in an email and send it.** Six
+  other tools were outside the checks: the browser automation tools, the Jira and
+  Confluence tools, and PDF publishing.
+
+  The list is written by hand on purpose — guessing from the name would refuse
+  `search_memory`, which never leaves your machine, and would wave through a
+  future tool whose name happened not to match. What was missing was anything
+  comparing that list against the code, and there is now a check that does, on
+  every change.
+
+- **Commands that destroy a disk were graded as harmlessly as listing a folder.**
+  `format d:` was correctly treated as critical and refused. `Format-Volume
+  -DriveLetter D` — the same operation, written the modern way — was not treated
+  as risky at all. Clearing a disk, removing a partition, wiping free space and
+  script-driven `diskpart` had no rule either, and a recursive delete written the
+  common way round was missed.
+
+  This mattered because "Always allow" applies to a **tool**, not to a command:
+  once you have allowed the command-running tool while doing something harmless,
+  the risk grade is the only thing left between a mistyped drive letter and a
+  destroyed volume. Everyday tidying is deliberately still allowed without fuss.
+
+- **A second copy, or anything else holding CAIRN's port, crashed the app with a
+  developer stack trace.** CAIRN checks whether its port is free before starting,
+  and the check asked the question a slightly different way from the way the
+  server asks it, so it reported the port free and the app then failed to start.
+  You now get a sentence naming the port and what to do about it, and the check
+  no longer disagrees with the server.
+
+### Changed
+
+- **Refusals say what to do next.** Several said only what had happened. A
+  refusal about the *content* of a message now also says that the destination was
+  fine, so you are not sent looking in the wrong settings file.
+
+- **A disclosure is linked to the session that caused it.** Records of data
+  leaving the machine carried no link back to the conversation that produced
+  them, so an auditor holding a session could not ask what left during it.
+
+### Known limits, stated rather than left to be found
+
+- **This release is Windows only.** The Linux packages that shipped with 2.10.0
+  are not rebuilt here; a Linux user should stay on 2.10.0, which is unaffected
+  by the port-start crash and carries the same gateway and grading gaps. macOS is
+  still not built at all.
+
+- **A credential you paste into a prompt is still written to the audit trail in
+  full.** CAIRN masks credentials it stores for you; one typed into a message was
+  never stored, so it is not masked. Fixing this properly means guessing at what
+  looks like a secret, and guessing wrong damages the record that is the point of
+  the product — so it is written down here rather than patched in a hurry.
+
+- **Still unsigned.** Windows will warn on first run. Verify the download with
+  the included `verify-release.cjs` instead; the release notes explain what that
+  does and does not prove.
+
+---
+
 ## [2.10.0] - 2026-09-05
 
 Evidence that says which machine it came from, and can be read across several of
