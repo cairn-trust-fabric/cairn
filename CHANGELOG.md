@@ -12,8 +12,8 @@ Three things that were true of 2.10.0 and should not have been.
 
 All three were found by using CAIRN rather than by reviewing it — two by walking
 it as a returning user and as someone doing an ordinary thing badly, and one from
-a crash on a real installation. **If you are running 2.10.0 on Windows, this
-replaces it.**
+a crash on a real installation. **If you are running 2.10.0, this replaces it** —
+on Windows and on Linux.
 
 ### Fixed
 
@@ -63,10 +63,8 @@ replaces it.**
 
 ### Known limits, stated rather than left to be found
 
-- **This release is Windows only.** The Linux packages that shipped with 2.10.0
-  are not rebuilt here; a Linux user should stay on 2.10.0, which is unaffected
-  by the port-start crash and carries the same gateway and grading gaps. macOS is
-  still not built at all.
+- **macOS is still not built at all.** Windows, Linux AppImage and Linux .deb
+  are published; there is no macOS package and there has never been one.
 
 - **A credential you paste into a prompt is still written to the audit trail in
   full.** CAIRN masks credentials it stores for you; one typed into a message was
