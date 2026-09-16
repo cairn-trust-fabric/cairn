@@ -22,7 +22,7 @@ CAIRN inserts a deterministic governance and dual-runtime verification plane bet
 
 ## About CAIRN Trust Fabric
 
-**CAIRN Trust Fabric** is an enterprise-grade governance and execution plane designed to bring deterministic control, cryptographic verification, and hardware-isolated execution to artificial intelligence systems.
+**CAIRN Trust Fabric** is an enterprise-grade governance and execution plane designed to bring deterministic control, tamper-evident records, and isolated execution to artificial intelligence systems.
 
 As organisations deploy autonomous AI agents, coding copilots, and multi-model workflows, they encounter a critical structural problem: **probabilistic language models cannot guarantee safety, idempotency, or policy adherence at runtime**. 
 
@@ -60,10 +60,10 @@ The stacked cairn mark represents the 4-tier execution architecture:
          +---------------------------------------+
 ```
 
-1. **Tier 1: Intent & Ingress Gate** — Ingests user and agent intent, validates parameter schemas, performs Abstract Syntax Tree (AST) parsing, and filters prompt injection vectors.
-2. **Tier 2: Policy & Governance Engine** — Evaluates signed organisational policy, applying credential redaction, egress domain allow-listing, and operator-declared autonomy ceilings. Measured at **0.20–0.26 ms (p50)** for a decision that does not run code. Role-based access control is **not built** — it arrives in v3.0, and identity today is the operating-system user.
-3. **Tier 3: Dual-Runtime Sandbox Execution** — Dynamically routes workloads to read-only Linux Docker containers or isolated Windows Sandbox Hyper-V micro-VMs.
-4. **Tier 4: Cryptographic Evidence Ledger** — Generates signed SHA-256 decision records, state-delta hashes, and real-time SIEM event streams.
+1. **Tier 1: Intent & Ingress Gate** — Ingests user and agent intent, validates parameter schemas and parses any code a call carries, before the call reaches a tool. It does not filter prompt injection: it decides on the action an agent proposes, whatever prompt produced it.
+2. **Tier 2: Policy & Governance Engine** — Evaluates signed organisational policy, applying credential redaction, egress domain allow-listing, and operator-declared autonomy ceilings. On 2.10.1 a decision that runs no code measured **0.2–2.2 ms (p50)** — see [validation/](validation/) to re-take it. Role-based access control is **not built** — it arrives in v3.0, and identity today is the operating-system user.
+3. **Tier 3: Isolated Execution** — Runs code in a Docker container with no network and a read-only filesystem, or in Windows Sandbox, where either is present. Where neither is, the result is recorded as static checks only.
+4. **Tier 4: Evidence Ledger** — Writes hash-chained SHA-256 decision records — an edit breaks the chain unless every later hash is recomputed — and exports them as a bundle (signable with Ed25519) and JSONL a log pipeline can ingest.
 
 ---
 
