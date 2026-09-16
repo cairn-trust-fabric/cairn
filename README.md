@@ -26,7 +26,7 @@ CAIRN inserts a deterministic governance and dual-runtime verification plane bet
 
 As organisations deploy autonomous AI agents, coding copilots, and multi-model workflows, they encounter a critical structural problem: **probabilistic language models cannot guarantee safety, idempotency, or policy adherence at runtime**. 
 
-CAIRN resolves this by operating as an unbypassable intermediary layer:
+CAIRN resolves this by placing a deterministic intermediary layer in front of the runtime — every tool invocation enters it before it runs:
 * **Default-Deny Ingress**: Intercepts every tool invocation, shell command, code execution request, and outbound network attempt before host exposure.
 * **Dual-Runtime Hardware Sandboxes**: Dispatches unverified workloads into ephemeral Linux Docker containers or native Windows Sandbox Hyper-V micro-VMs.
 * **Tiered Assurance Verification**: Evaluates actions across a structured 6-tier ladder from unverified strings to deterministic, repeatable outcomes.
