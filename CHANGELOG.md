@@ -6,6 +6,59 @@ Versions are set only by `node scripts/version.js`, which is the single source o
 `package.json`, `src/version.js` and the installer names. `npm run build` refuses
 to package a version that has no section here — see `scripts/check-version.js`.
 
+## [2.10.3] - 2026-09-18
+
+**If you downloaded 2.10.2 today and could not get through setup, this is why, and this fixes it.**
+
+### New installs of 2.10.2 could not finish setting up
+
+The last step of the setup wizard failed with **"Setup did not complete — Reported cause: os is not defined"**, and no amount of retrying cleared it.
+
+It only happened if you **left the "What should CAIRN call you?" field blank** — which the wizard invites you to do, in those words. Fill the name in and you would never have seen it. Leave it blank, as suggested, and you could not finish.
+
+The cause was a missing line in our own code, not anything about your machine. The wizard made that worse by telling you the vault folder was probably not writable, sending you to check a directory that was almost certainly fine. It now tells you plainly when a failure is a fault in CAIRN rather than a problem at your end, and asks you to report it.
+
+**If you already completed setup on 2.10.2, you were not affected.** This only touched first run.
+
+### The status report has been under-reporting cloud use
+
+Found while fixing the above, and it is the more serious of the two.
+
+A file responsible for the Trust & Audit status report was missing two imports of its own, inside a block that quietly ignored the resulting error. The effect: the report could never read your fleet configuration, so **a pillar you had pointed at a cloud model would not have shown up as cloud use in that report.**
+
+This was silent, it affected every installation, and it under-stated what left your machine. That is the opposite of what this report exists for, and we would rather say so plainly than let it slide out in a list of fixes. It is corrected.
+
+Your data was not sent anywhere it would not otherwise have gone — the governance gate and the egress controls were unaffected. What was wrong was the *report* about it.
+
+### How both were found, and what we have done about the class
+
+By installing CAIRN on a clean machine and clicking through the setup wizard by hand — the first time anyone had. Our automated clean-machine test runs the installer silently, so every screen a person actually sees had never been looked at.
+
+We have added a check that requires every file to import what it uses. It found the second problem above within a minute of being written.
+
+### Things we saw on that walk and have not fixed yet
+
+We would rather list these than have you find them:
+
+- The hardware summary on step 3 shows **"nullGB"** for video memory on a machine without a graphics card, where the same summary one screen earlier correctly says "None".
+- Step 4 says **"Gemini analyses your hardware"** even when you chose Offline Mode and gave no key — the offline fallback did the work — and calls the result a "3-model fleet" while listing seven.
+- Step 2 says your API key is **"never transmitted externally"**. What we mean is that CAIRN never sends it anywhere of its own accord. The key is of course sent to Google when you use it; that is what it is for. The sentence should say the narrower thing and will.
+- **Windows Firewall may ask** to allow CAIRN on public and private networks. You can safely decline — CAIRN listens only to your own machine by default, and it carried on normally when we declined. Why the prompt appears at all is still open.
+
+### About the download warning
+
+There are two Windows warnings, and we had only ever described the second one.
+
+Before you get to "Windows protected your PC", Microsoft Edge shows a dialog saying it **could not verify the file**, listing **Publisher: Unknown**, whose main button is **Delete** — you have to open that button's dropdown to find "Keep anyway". That is what an unsigned download looks like, and it is the one most people will actually meet.
+
+"Publisher: Unknown" means nobody has paid a certificate authority to vouch for who we are. It does not mean the file has been tampered with. You do not have to take our word for either — verify the download.
+
+### Unchanged, and you should know it
+
+- **Nothing is code-signed**, on any platform.
+- **There is no macOS build.**
+- **There is no automatic update.** A 2.10.2 install stays on 2.10.2 until you download this one.
+
 ## [2.10.2] - 2026-09-18
 
 **This is a security release. If you are running 2.10.1 or earlier, update.**
