@@ -1,6 +1,6 @@
 # Checking CAIRN's numbers yourself
 
-**Written:** 2026-09-16 · **Applies to:** CAIRN Trust Fabric 2.10.1
+**Written:** 2026-09-16 · **Revised:** 2026-09-18 · **Applies to:** CAIRN Trust Fabric 2.10.2
 
 This directory exists so that a figure CAIRN publishes is something you can
 re-take, not something you have to believe. It uses only what is public: the
@@ -18,7 +18,7 @@ If you do, open an issue with your results — including the ones that disagree.
 | --- | --- |
 | **Gate cost** — what one governance decision takes | **Published, reproducible.** Method, script and raw results below |
 | **Evidence verification** — that a record is what it says | **Published, reproducible** in a browser at [cairnetp.com/receipt.html](https://cairnetp.com/receipt.html), and by hand with the `VERIFY.md` inside every exported bundle |
-| **Release integrity** — that a download is unaltered | **Published, reproducible.** `verify-release.cjs` ships beside the 2.10.1 installers |
+| **Release integrity** — that a download is unaltered | **Published, reproducible.** `verify-release.cjs` ships beside the 2.10.2 installers |
 | **Detection rates** — false positives and false negatives of the static scanners | **Not published, because not measured.** No labelled corpus has been run against the scanners. The scanners are advisory, and the product says so; a detection rate will be published when one has been taken, not estimated |
 | **A threat model for the chain** | Stated where it applies: an unsigned, unanchored hash chain can be rewritten intact by anyone with write access who recomputes every later hash. [The receipt page](https://cairnetp.com/receipt.html#check) does it in front of you |
 
@@ -34,7 +34,7 @@ tree — including one extracted from a published installer, which is the point.
 
 Download an installer, `SHA256SUMS.txt`, `SHA256SUMS.txt.sig`, `release-pubkey.pem`
 and `verify-release.cjs` from the
-[2.10.1 release](https://github.com/cairn-trust-fabric/cairn/releases/tag/2.10.1),
+[2.10.2 release](https://github.com/cairn-trust-fabric/cairn/releases/tag/2.10.2),
 then:
 
 ```bash
@@ -42,7 +42,7 @@ node verify-release.cjs
 ```
 
 The `.deb` used for the published result below has SHA-256
-`104045cf15c47a5bd795cf31d72b8b8de7090931219f321596d59833f1201434`.
+`576d8ee64b1f0e49c0365293821181d8e909196ef7d25f83dd96c868ab115780`.
 
 ### 2. Extract the application code
 
@@ -50,14 +50,16 @@ The JavaScript that makes every decision ships inside `app.asar`.
 
 ```bash
 # Linux, from the .deb
-ar x cairn-trust-fabric_2.10.1_amd64.deb && tar -xf data.tar.xz
+ar x cairn-trust-fabric_2.10.2_amd64.deb && tar -xf data.tar.xz
 
-# Windows 10/11 — the built-in tar reads .deb archives too
-tar -xf cairn-trust-fabric_2.10.1_amd64.deb
-tar -xf data.tar.xz
+# Windows 10/11 — the BUILT-IN tar reads .deb archives; call it by full path.
+# In Git Bash or MSYS, plain `tar` is GNU tar and fails with
+# "This does not look like a tar archive". Found by following these steps, 2026-09-18.
+/c/Windows/System32/tar.exe -xf cairn-trust-fabric_2.10.2_amd64.deb
+/c/Windows/System32/tar.exe -xf data.tar.xz
 
 # then, on either
-npx @electron/asar extract "opt/CAIRN Trust Fabric/resources/app.asar" cairn-2.10.1
+npx @electron/asar extract "opt/CAIRN Trust Fabric/resources/app.asar" cairn-2.10.2
 ```
 
 ### 3. Measure
@@ -65,7 +67,7 @@ npx @electron/asar extract "opt/CAIRN Trust Fabric/resources/app.asar" cairn-2.1
 Node 22.5 or later (the ledger uses Node's built-in SQLite).
 
 ```bash
-node measure-gate.mjs --src cairn-2.10.1 --n 500 --json my-result.json
+node measure-gate.mjs --src cairn-2.10.2 --n 500 --json my-result.json
 ```
 
 It creates a temporary vault, writes nothing outside it except the `--json` file
@@ -79,16 +81,22 @@ purpose; the header of the script explains each.
 Host: Intel Core i9-12900K, 24 logical cores, 31.7 GB, Windows 11, Node 24.2.0.
 500 iterations per scenario after 20 warm-up. p50 in milliseconds.
 
-| Scenario | 2.10.1 as shipped | Source after the fix below (unreleased) |
+| Scenario | 2.10.1 as shipped | **2.10.2 as shipped** |
 | --- | --- | --- |
-| Read, no payload | 0.227 | 0.213 |
-| Write, with a path argument | **1.870** | 0.230 |
-| Execute, already CRITICAL | **1.888** | 0.269 |
-| Denied, unclassified tool | 0.234 | 0.214 |
-| Execute with a payload (PowerShell analysed) | 331 | 326 |
+| Read, no payload | 0.227 | **0.225** |
+| Write, with a path argument | **1.870** | **0.258** |
+| Execute, already CRITICAL | **1.888** | **0.285** |
+| Denied, unclassified tool | 0.234 | **0.240** |
+| Execute with a payload (PowerShell analysed) | 331 | **344** |
 
-Raw: [`results/gate-2.10.1-shipped-2026-09-16.json`](results/gate-2.10.1-shipped-2026-09-16.json)
-and [`results/gate-unreleased-after-fix-2026-09-16.json`](results/gate-unreleased-after-fix-2026-09-16.json).
+The 2.10.2 column was taken on 2026-09-18 from the published `.deb`, on the same host and
+Node version as the 2.10.1 column, so the two compare directly. **p99 is not in this table
+and matters:** 2.3–2.9 ms for the cheap scenarios, because a ledger checkpoint is real work
+that has to happen somewhere. The headline figure on cairnetp.com is a p50 and says so.
+
+Raw: [`results/gate-2.10.1-shipped-2026-09-16.json`](results/gate-2.10.1-shipped-2026-09-16.json),
+[`results/gate-unreleased-after-fix-2026-09-16.json`](results/gate-unreleased-after-fix-2026-09-16.json)
+and [`results/gate-2.10.2-shipped-2026-09-18.json`](results/gate-2.10.2-shipped-2026-09-18.json).
 
 ### The published figure did not hold for 2.10.1, and this is how that was found
 
@@ -108,9 +116,16 @@ default cache and 0.058 ms at 16 MB.
 
 **What changes and when:** the cache is 16 MB in CAIRN's source from 2026-09-16,
 with a test that fails if the cache cannot hold the tail of real-sized records
-twice over. It reaches users in the next release. **2.10.1 as downloaded today
-behaves as the middle column above**, and cairnetp.com now states the 2.10.1
-range rather than the older figure.
+twice over.
+
+**It has now shipped, and the third column is that fix as downloaded.** Writes went
+from 1.870 ms to 0.258 ms against the published `.deb`, and the sawtooth across each
+checkpoint cycle is gone at the median. **2.10.1 as downloaded still behaves as the
+middle column** — the fix is in 2.10.2 and there is no automatic update, so an
+install that has not been replaced still has it.
+
+The point of this directory is that you did not have to take either number from us,
+and did not have to take the correction from us either.
 
 ### Things these numbers are not
 

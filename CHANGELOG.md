@@ -6,6 +6,46 @@ Versions are set only by `node scripts/version.js`, which is the single source o
 `package.json`, `src/version.js` and the installer names. `npm run build` refuses
 to package a version that has no section here — see `scripts/check-version.js`.
 
+## [2.10.2] - 2026-09-18
+
+**This is a security release. If you are running 2.10.1 or earlier, update.**
+
+### Why you should update
+
+**2.10.1 and earlier will run commands sent by anything that can reach them over the network.**
+
+CAIRN's web interface treated a request as trusted if it *claimed* to come from your own machine. Claiming that is one line in a request, and anything on your network could say it. Once trusted, a request could add a "tool server" — and adding one means CAIRN starts a program you did not choose.
+
+No password was needed. Nothing appeared in your decision record, because from CAIRN's point of view no decision was made: the part of CAIRN that reviews what the AI does was never involved. This is an administrative door, and it was not locked.
+
+We found this ourselves on 16 September, confirmed it by doing it, and fixed it the next day. We have no reason to think anyone else found it first, and no way to prove that either — which is why this release exists rather than waiting for the next one.
+
+**What changed:**
+
+- CAIRN now listens only to your own machine unless you deliberately tell it otherwise. If you run the container or serve other machines on purpose, you set that yourself and CAIRN warns you in the log every time it starts.
+- Whether a request came from your machine is now decided from the network connection itself, which cannot be faked by a request, instead of from something the request says about itself.
+
+**If you run CAIRN on a shared network, a server, or the container, treat 2.10.1 as exposed and update now.** If you only ever run it on a laptop behind a home router, the risk was lower but not zero — anything else on that network could reach it.
+
+### Also fixed
+
+**The speed figure we published was not measured against the version we published.** We re-measured it the way an outsider would, using the published download, and it did not hold. Underneath was a real problem: as your decision record grew, writing to it got roughly ten times slower, then reset, then climbed again. That is fixed, and the figure now states which version it was measured on.
+
+**Every evidence bundle overstated what its record can prove on its own.** Bundles described the tamper-evidence in absolute terms. On a record kept only on one machine that is too strong: someone who can edit the file can also recompute the rest of it so the chain still checks out. What actually reveals tampering is a copy held somewhere else, or a timestamp from an outside authority. The bundle now states the condition rather than leaving it out.
+
+**The setup wizard told a new operator three things that were not so**, listed one row per pillar where it meant one per model, and counted a virtual display adapter as a graphics card. When CAIRN cannot reach the internet, it now suggests models that still exist and prefers the ones you already have.
+
+### Also worth knowing
+
+We removed several claims from our website and documentation that our own records do not support — including the word "unbypassable", a pillar count that was wrong, and a performance claim stated as an absolute. Each now has an automated check so it cannot come back. We also published a way for you to re-take our performance figure yourself, from the download, without installing anything.
+
+### Unchanged, and you should know it
+
+- **Nothing is code-signed.** Windows will say "Windows protected your PC". That means nobody has paid for a publisher identity check, not that the file is dangerous. Verify the download instead — `node verify-release.cjs`, included, needs nothing installed.
+- **There is no macOS build.**
+- **There is no automatic update.** A 2.10.1 install stays on 2.10.1 until you download this one. We have not built an updater because an updater that cannot check a signature is itself a way to push code onto your machine — which is the kind of problem this release exists to fix.
+- **The installer's setup screens have never been walked through by a person.** Our clean-machine test runs the installer silently. If something looks wrong there, please open an issue.
+
 ## [2.10.1] - 2026-09-06
 
 Three things that were true of 2.10.0 and should not have been.
