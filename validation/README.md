@@ -1,6 +1,6 @@
 # Checking CAIRN's numbers yourself
 
-**Written:** 2026-09-16 · **Revised:** 2026-09-18 · **Applies to:** CAIRN Trust Fabric 2.10.3
+**Written:** 2026-09-16 · **Revised:** 2026-09-18 · **Applies to:** CAIRN Trust Fabric 2.10.4
 
 This directory exists so that a figure CAIRN publishes is something you can
 re-take, not something you have to believe. It uses only what is public: the

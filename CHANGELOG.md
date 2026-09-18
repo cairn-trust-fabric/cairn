@@ -6,6 +6,43 @@ Versions are set only by `node scripts/version.js`, which is the single source o
 `package.json`, `src/version.js` and the installer names. `npm run build` refuses
 to package a version that has no section here — see `scripts/check-version.js`.
 
+## [2.10.4] - 2026-09-18
+
+**The four setup-wizard problems 2.10.3 listed as known are fixed.** Nothing here is a security fix — if you are on 2.10.3 you are not exposed. If you are on 2.10.1 or earlier, see 2.10.2, which is.
+
+### What you will notice
+
+**The hardware summary no longer says "nullGB".** On a machine with no graphics card, one screen of the wizard correctly said *None* and the next said `nullGB`. That was not a wrong sentence but a second copy of a right decision — the two screens each decided for themselves how to show the figure, and only one of them checked whether there was a figure to show. There is one place that decides now.
+
+**The wizard no longer says Gemini chose your models when it didn't.** If you set up without a key, a built-in table matched to your hardware picks the fleet — and every model card already said so honestly. The heading above them still credited Gemini. It now says which of the two actually did the work on your run.
+
+**It no longer calls a list of seven models a "3-model fleet".**
+
+**And it no longer says your API key is "never transmitted externally".** Your key is sent to Google whenever you use it; that is what an API key is for. What we meant is that CAIRN sends it nowhere of its own accord, and that is what it says now. The old sentence was the kind of absolute we ask everyone else not to make.
+
+**Corrected claims:** `credential-egress` — this page quotes the withdrawn sentence in order to withdraw it. Our own checker flags the quotation, correctly, so the withdrawal is declared here rather than the quotation being removed. You should be able to see what we took back.
+
+### The reason all four existed
+
+Our claims register governs what we are allowed to say, and until now it governed five surfaces — the website, the download pages, the manuals, the release notes — **all of them marketing.** The product itself was checked by nothing.
+
+That was not an oversight so much as a blind spot with a mechanism: the tool that reads our pages for unsupported claims deliberately skips code, and the setup wizard is a single page whose every sentence lives inside code. So its text had never been read by any rule, for the life of the feature.
+
+It is the sixth surface now, read by the same rules as the rest. **A buyer reads those sentences at a moment no marketing page reaches — after they have installed.**
+
+Its first run found two more statements, and both turned out to be honest writing that our own rules were wrongly objecting to. We changed the rules, not the sentences. One of them we checked was actually true before allowing it.
+
+### Also
+
+A test we added yesterday was quietly unsafe — it edited the claims register in place while other tests were reading it, which made the suite fail once at random. Fixed properly rather than re-run until green. We have two older intermittent failures we still cannot explain, and we would rather not collect a third.
+
+### Unchanged, and you should know it
+
+- **Nothing is code-signed.** Windows shows "Publisher: Unknown" and offers **Delete** as the main button on the download dialog; "Keep anyway" is inside that button's dropdown. That means nobody has paid a certificate authority to vouch for who we are — not that the file has been altered. Check it yourself below.
+- **There is no macOS build.**
+- **There is no automatic update.** A 2.10.3 install stays on 2.10.3 until you download this one.
+- **Still nobody outside this project has used CAIRN for a day's work.** We say so in our register and we are not going to stop saying it until it stops being true.
+
 ## [2.10.3] - 2026-09-18
 
 **If you downloaded 2.10.2 today and could not get through setup, this is why, and this fixes it.**
