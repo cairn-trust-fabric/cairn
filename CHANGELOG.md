@@ -34,7 +34,7 @@ It needs nothing installed, writes nothing, and reports three things it delibera
 
 We wrote a brief for the first outside reviewer, then ran it against 2.10.4 ourselves while waiting for one. The shutdown bug is what that turned up.
 
-The review is published with the release documentation, and its first section says plainly that it **is not an independent review** — the person who wrote most of the code wrote it, days after writing the defences it probes. We are not counting it as external, and it earns no entry in our claims register. It is there so the real reviewer can start past it.
+That review is **internal and not published** — corrected 2026-09-19, hours after publishing, because this line originally said it was published with the release documentation and it is not. Its first section says plainly why it should not be — the person who wrote most of the code wrote it, days after writing the defences it probes. We are not counting it as external, and it earns no entry in our claims register. It is there so the real reviewer can start past it.
 
 The same review re-took our published performance figure from the downloaded package using our published script, and it came out inside the range we advertise. We did not adjust anything after that.
 
