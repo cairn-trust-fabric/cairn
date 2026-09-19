@@ -6,6 +6,52 @@ Versions are set only by `node scripts/version.js`, which is the single source o
 `package.json`, `src/version.js` and the installer names. `npm run build` refuses
 to package a version that has no section here — see `scripts/check-version.js`.
 
+## [2.10.5] - 2026-09-19
+
+**Ctrl-C did not stop the server, and there is now a way to evaluate CAIRN without a source checkout.** Nothing here is a security fix.
+
+### Ctrl-C now actually stops it
+
+If you run CAIRN headless — `npm run server`, or the hub in a terminal — pressing Ctrl-C printed an error and **left it running**. You would have had to kill the process.
+
+The cause was a line referring to something that did not exist, inside one of three shutdown handlers. It threw; that stopped the handler after it from running; and the one it stopped was the one that actually exits. The error handler above it logs without quitting, so nothing ever ended the process. Tunnels were left open and background daemons were left running.
+
+**`docker stop` was never affected** — it sends a different signal, and that path always worked. If you run CAIRN in a container, nothing changed for you.
+
+Fixed by removing the handler. We checked it on Linux in both directions — the old shape genuinely survives Ctrl-C, the new one shuts down cleanly — because Windows fakes signals well enough to have given us a wrong answer either way.
+
+### You can now evaluate CAIRN without a checkout
+
+`evaluate.mjs` ships with this release, beside `verify-release.cjs`. With CAIRN running:
+
+    node evaluate.mjs
+
+It needs nothing installed, writes nothing, and reports three things it deliberately refuses to merge: what answered, what exists but is not in your edition, and what is genuinely absent on your machine. Where it cannot reach CAIRN it exits 2 rather than reporting a pass.
+
+**It should have shipped long ago.** Our own two-minute evaluation guide opened with commands that require a source checkout — which nobody outside this project has, as our claims register says in as many words. The page could not be followed by the person it was written for. Fixing that meant teaching our release checks that an artefact has a first version, since 2.1.0 will never carry a file invented this week.
+
+### Where this came from
+
+We wrote a brief for the first outside reviewer, then ran it against 2.10.4 ourselves while waiting for one. The shutdown bug is what that turned up.
+
+The review is published with the release documentation, and its first section says plainly that it **is not an independent review** — the person who wrote most of the code wrote it, days after writing the defences it probes. We are not counting it as external, and it earns no entry in our claims register. It is there so the real reviewer can start past it.
+
+The same review re-took our published performance figure from the downloaded package using our published script, and it came out inside the range we advertise. We did not adjust anything after that.
+
+### Known, and not fixed here
+
+Both found by the same review:
+
+- **150 places in the code discard an error without recording it.** Most are legitimate — a config file that does not exist yet. The problem is that a permanent programming mistake looks identical to the missing file they were written for, which is how the Trust-panel reporting bug fixed in 2.10.3 survived for weeks. A linter would have caught both at the moment of writing; we do not run one.
+- **One rule that keeps the policy preview away from the live governance path is a comment rather than a test.** It is correct today and nothing enforces it.
+
+### Unchanged, and you should know it
+
+- **Nothing is code-signed.** Windows shows "Publisher: Unknown" and offers **Delete** as the main button on the download dialog; "Keep anyway" is inside that button's dropdown.
+- **There is no macOS build.**
+- **There is no automatic update.** A 2.10.4 install stays on 2.10.4 until you download this one.
+- **Nobody outside this project has yet used CAIRN for a day's work.**
+
 ## [2.10.4] - 2026-09-18
 
 **The four setup-wizard problems 2.10.3 listed as known are fixed.** Nothing here is a security fix — if you are on 2.10.3 you are not exposed. If you are on 2.10.1 or earlier, see 2.10.2, which is.

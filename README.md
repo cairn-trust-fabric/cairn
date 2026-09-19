@@ -4,7 +4,7 @@
 
 ### The Enterprise Trust Fabric — Secure • Orchestrate • Automate
 
-[![Release](https://img.shields.io/badge/Release-v2.10.4-2562EB?style=flat-square)](https://github.com/cairn-trust-fabric/cairn/releases)
+[![Release](https://img.shields.io/badge/Release-v2.10.5-2562EB?style=flat-square)](https://github.com/cairn-trust-fabric/cairn/releases)
 [![Platform](https://img.shields.io/badge/Platform-Windows%20x64%20%7C%20Linux%20x64%20%7C%20Containers-14C8A6?style=flat-square)](https://cairnetp.com)
 [![Architecture](https://img.shields.io/badge/Architecture-Dual--Runtime%20Sandbox-7C5AED?style=flat-square)](https://cairnetp.com/#architecture)
 [![Evidence](https://img.shields.io/badge/Evidence-Auditor--verifiable%20export-061220?style=flat-square)](https://cairnetp.com/compliance.html)
@@ -61,7 +61,7 @@ The stacked cairn mark represents the 4-tier execution architecture:
 ```
 
 1. **Tier 1: Intent & Ingress Gate** — Ingests user and agent intent, validates parameter schemas and parses any code a call carries, before the call reaches a tool. It does not filter prompt injection: it decides on the action an agent proposes, whatever prompt produced it.
-2. **Tier 2: Policy & Governance Engine** — Evaluates signed organisational policy, applying credential redaction, egress domain allow-listing, and operator-declared autonomy ceilings. On 2.10.4 a decision that runs no code measured **0.22–0.29 ms (p50)**, reaching about 2.9 ms at the 99th percentile when the ledger checkpoints — see [validation/](validation/) to re-take it. Role-based access control is **not built** — it arrives in v3.0, and identity today is the operating-system user.
+2. **Tier 2: Policy & Governance Engine** — Evaluates signed organisational policy, applying credential redaction, egress domain allow-listing, and operator-declared autonomy ceilings. On 2.10.5 a decision that runs no code measured **0.22–0.29 ms (p50)**, reaching about 2.9 ms at the 99th percentile when the ledger checkpoints — see [validation/](validation/) to re-take it. Role-based access control is **not built** — it arrives in v3.0, and identity today is the operating-system user.
 3. **Tier 3: Isolated Execution** — Runs code in a Docker container with no network and a read-only filesystem, or in Windows Sandbox, where either is present. Where neither is, the result is recorded as static checks only.
 4. **Tier 4: Evidence Ledger** — Writes hash-chained SHA-256 decision records — an edit breaks the chain unless every later hash is recomputed — and exports them as a bundle (signable with Ed25519) and JSONL a log pipeline can ingest.
 
