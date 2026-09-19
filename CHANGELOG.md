@@ -6,6 +6,39 @@ Versions are set only by `node scripts/version.js`, which is the single source o
 `package.json`, `src/version.js` and the installer names. `npm run build` refuses
 to package a version that has no section here — see `scripts/check-version.js`.
 
+## [2.10.6] - 2026-09-19
+
+**Two corrections to 2.10.5, both found by following our own artefacts rather than reading them.** Neither is a security fix. If you are on 2.10.5 nothing here is urgent.
+
+### The evaluation script told you to run a command you cannot run
+
+`evaluate.mjs` shipped for the first time in 2.10.5. If CAIRN was not running when you ran it, it said:
+
+    Start it:   docker compose up --build
+
+which needs a source checkout. **That is the exact problem it shipped to fix.** Our two-minute evaluation guide had the same defect — its first command could not be run by the person it was written for — and the fix was to ship this script, which then gave the same advice itself.
+
+It now tells you to start the CAIRN you installed, and mentions the checkout route second.
+
+We found it by downloading the file from the release page and running it in an empty folder. Reading it in our own repository would never have shown it, because there the command works.
+
+### A release note pointed at something you cannot reach
+
+2.10.5's notes said *"The review is published with the release documentation"*, referring to a review we ran against 2.10.4 using our own outside-reviewer brief.
+
+**It is not published anywhere.** It is in our private repository. The sentence sent you looking for something that does not exist publicly.
+
+The published note and the public changelog are corrected, with the correction stated rather than the text quietly swapped — a release note is a dated record, and an amendment nobody can see is worse than the error.
+
+**The review itself stays internal, deliberately.** It was written by the person who wrote most of the code, days after writing the defences it probes, and circulating a self-authored document is how a self-review gets mistaken for an independent one. We have made that mistake once before and withdrew it. **When somebody outside this project reviews CAIRN, their report gets published verbatim under their name.** This is not that, and we would rather say so than let it blur.
+
+### Unchanged, and you should know it
+
+- **Nothing is code-signed.** Windows shows "Publisher: Unknown" and offers **Delete** as the main button on the download dialog; "Keep anyway" is inside that button's dropdown.
+- **There is no macOS build.**
+- **There is no automatic update.** A 2.10.5 install stays on 2.10.5 until you download this one.
+- **Nobody outside this project has yet used CAIRN for a day's work.**
+
 ## [2.10.5] - 2026-09-19
 
 **Ctrl-C did not stop the server, and there is now a way to evaluate CAIRN without a source checkout.** Nothing here is a security fix.
