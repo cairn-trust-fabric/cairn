@@ -6,6 +6,101 @@ Versions are set only by `node scripts/version.js`, which is the single source o
 `package.json`, `src/version.js` and the installer names. `npm run build` refuses
 to package a version that has no section here — see `scripts/check-version.js`.
 
+## [2.10.7] - 2026-09-20
+
+**A security fix. If you are running 2.10.6 or earlier, update.**
+
+This release was prompted by the first independent review of CAIRN. A reviewer
+who had not seen the code worked through the published evaluation brief against
+2.10.6 and found, among other things, two statements in our own claims register
+that were not true. Those are corrected below and in the register itself.
+
+### The security fix
+
+**The governance gate could authorise an application launch without inspecting
+what it was launching.**
+
+CAIRN's gate is supposed to read the payload of anything it authorises: the
+code, the script, the arguments. For the "open an application" tool it read
+nothing at all. The gate reported the request as passed, the static scan and the
+corporate blocklist were skipped because they were handed nothing to examine,
+and the launch proceeded.
+
+On Windows, the value was then passed to the command interpreter, which
+interprets what it is given rather than treating it as a single file name. An
+application name containing additional arguments was therefore acted on as those
+arguments.
+
+**What this means for you.** A turn in which CAIRN chose to open an application
+could start a process the gate had not examined, running as your user account on
+your own machine. It is not remotely triggerable and it is not a way in from
+outside; it required CAIRN to make that tool call, which content it had been
+asked to read could influence.
+
+**What changed.** The application name is now part of the payload the gate
+reads, so it goes through the same static scan, evasion detection and blocklist
+as any other executable content. On Windows the launch no longer passes the
+value through a command interpreter at all.
+
+We had published "the gate reads the code it would authorise" as an established
+capability. For this one tool it was not established, and had not been since the
+tool was added. That row now carries what it does and does not cover.
+
+### Also fixed
+
+- **Trust & Audit could report pillars as staffed by models that were not
+  available.** Asked which models its pillars were using, CAIRN answered from
+  its configuration file rather than from the machine, so a pillar assigned a
+  model that was not installed, or that lived on a host which was offline, was
+  reported as ready. It now says when an assignment is not being served, names
+  what is answering instead, and says plainly when it could not check rather
+  than implying it did.
+
+  **If you relied on that panel to confirm your fleet was live, it could have
+  told you yes when the answer was no.**
+
+- **A sandboxed background script that ran correctly could be recorded as a
+  failed check.** The verification result was discarded by an internal error on
+  the success path, so the run was filed as a failure of the check rather than
+  as the pass it was.
+
+- **"Open log file" in the tray menu failed silently when it had something to
+  report.** If the log was missing or your system could not open it, the
+  notification explaining that never appeared.
+
+- **A raw internal instruction briefly appeared in the chat** before the written
+  answer replaced it. It was CAIRN's routing decision, not part of any reply.
+
+- **A model loading for the first time looked like a freeze.** A large model can
+  take tens of seconds to load, and the chat gave no sign of it. It now names
+  the model, its size and how long it has been loading. This is a wait, not a
+  fault, and it recurs whenever a model has been unloaded from memory.
+
+- **A connector setup screen described Microsoft credentials as being "for
+  Enterprise SSO".** They authorise document access for the SharePoint
+  connector. CAIRN can verify an OIDC identity token; it does not acquire one,
+  and that screen should not have implied otherwise.
+
+### For people building from source
+
+- Model names were placed into a shell command when downloading models during
+  first-run setup. Those names can come from a live model index or from a
+  cloud model's response, so they are not values to trust. They are now passed
+  as arguments rather than as text in a command line. **This affects source and
+  development installs only**. The packaged application does not run that
+  wizard.
+
+- `npm run build:win` could fail its final verification step on machines with
+  PowerShell 7 installed, reporting a perfectly good installer as unverifiable.
+
+### Still true, and still not built
+
+Nothing here is code-signed, there is no macOS build, and there is no
+auto-update. Verify what you downloaded with the published checksums and
+signature. `verify-release.cjs` in this release does it in one command, and
+`evaluate.mjs` will tell you what a running CAIRN can and cannot do on your
+hardware.
+
 ## [2.10.6] - 2026-09-19
 
 **Two corrections to 2.10.5, both found by following our own artefacts rather than reading them.** Neither is a security fix. If you are on 2.10.5 nothing here is urgent.
