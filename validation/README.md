@@ -1,6 +1,6 @@
 # Checking CAIRN's numbers yourself
 
-**Written:** 2026-09-16 · **Revised:** 2026-09-18 · **Applies to:** CAIRN Trust Fabric 2.10.6
+**Written:** 2026-09-16 · **Revised:** 2026-09-21 · **Applies to:** CAIRN Trust Fabric 2.10.7
 
 This directory exists so that a figure CAIRN publishes is something you can
 re-take, not something you have to believe. It uses only what is public: the
@@ -18,7 +18,7 @@ If you do, open an issue with your results — including the ones that disagree.
 | --- | --- |
 | **Gate cost** — what one governance decision takes | **Published, reproducible.** Method, script and raw results below |
 | **Evidence verification** — that a record is what it says | **Published, reproducible** in a browser at [cairnetp.com/receipt.html](https://cairnetp.com/receipt.html), and by hand with the `VERIFY.md` inside every exported bundle |
-| **Release integrity** — that a download is unaltered | **Published, reproducible.** `verify-release.cjs` ships beside the 2.10.2 installers |
+| **Release integrity** — that a download is unaltered | **Published, reproducible.** `verify-release.cjs` ships beside the 2.10.7 installers |
 | **Detection rates** — false positives and false negatives of the static scanners | **Not published, because not measured.** No labelled corpus has been run against the scanners. The scanners are advisory, and the product says so; a detection rate will be published when one has been taken, not estimated |
 | **A threat model for the chain** | Stated where it applies: an unsigned, unanchored hash chain can be rewritten intact by anyone with write access who recomputes every later hash. [The receipt page](https://cairnetp.com/receipt.html#check) does it in front of you |
 
@@ -34,7 +34,7 @@ tree — including one extracted from a published installer, which is the point.
 
 Download an installer, `SHA256SUMS.txt`, `SHA256SUMS.txt.sig`, `release-pubkey.pem`
 and `verify-release.cjs` from the
-[2.10.2 release](https://github.com/cairn-trust-fabric/cairn/releases/tag/2.10.2),
+[2.10.7 release](https://github.com/cairn-trust-fabric/cairn/releases/tag/2.10.7),
 then:
 
 ```bash
@@ -42,7 +42,7 @@ node verify-release.cjs
 ```
 
 The `.deb` used for the published result below has SHA-256
-`576d8ee64b1f0e49c0365293821181d8e909196ef7d25f83dd96c868ab115780`.
+`235f82bc958e312b48dc540de14f14e3c36ce78e169481257b7003526edd9766`.
 
 ### 2. Extract the application code
 
@@ -50,16 +50,16 @@ The JavaScript that makes every decision ships inside `app.asar`.
 
 ```bash
 # Linux, from the .deb
-ar x cairn-trust-fabric_2.10.2_amd64.deb && tar -xf data.tar.xz
+ar x cairn-trust-fabric_2.10.7_amd64.deb && tar -xf data.tar.xz
 
 # Windows 10/11 — the BUILT-IN tar reads .deb archives; call it by full path.
 # In Git Bash or MSYS, plain `tar` is GNU tar and fails with
 # "This does not look like a tar archive". Found by following these steps, 2026-09-18.
-/c/Windows/System32/tar.exe -xf cairn-trust-fabric_2.10.2_amd64.deb
+/c/Windows/System32/tar.exe -xf cairn-trust-fabric_2.10.7_amd64.deb
 /c/Windows/System32/tar.exe -xf data.tar.xz
 
 # then, on either
-npx @electron/asar extract "opt/CAIRN Trust Fabric/resources/app.asar" cairn-2.10.2
+npx @electron/asar extract "opt/CAIRN Trust Fabric/resources/app.asar" cairn-2.10.7
 ```
 
 ### 3. Measure
@@ -67,7 +67,7 @@ npx @electron/asar extract "opt/CAIRN Trust Fabric/resources/app.asar" cairn-2.1
 Node 22.5 or later (the ledger uses Node's built-in SQLite).
 
 ```bash
-node measure-gate.mjs --src cairn-2.10.2 --n 500 --json my-result.json
+node measure-gate.mjs --src cairn-2.10.7 --n 500 --json my-result.json
 ```
 
 It creates a temporary vault, writes nothing outside it except the `--json` file
@@ -81,22 +81,34 @@ purpose; the header of the script explains each.
 Host: Intel Core i9-12900K, 24 logical cores, 31.7 GB, Windows 11, Node 24.2.0.
 500 iterations per scenario after 20 warm-up. p50 in milliseconds.
 
-| Scenario | 2.10.1 as shipped | **2.10.2 as shipped** |
-| --- | --- | --- |
-| Read, no payload | 0.227 | **0.225** |
-| Write, with a path argument | **1.870** | **0.258** |
-| Execute, already CRITICAL | **1.888** | **0.285** |
-| Denied, unclassified tool | 0.234 | **0.240** |
-| Execute with a payload (PowerShell analysed) | 331 | **344** |
+| Scenario | 2.10.1 as shipped | 2.10.2 as shipped | **2.10.7 as shipped** |
+| --- | --- | --- | --- |
+| Read, no payload | 0.227 | 0.225 | **0.201** |
+| Write, with a path argument | **1.870** | 0.258 | **0.236** |
+| Execute, already CRITICAL | **1.888** | 0.285 | **0.262** |
+| Denied, unclassified tool | 0.234 | 0.240 | **0.204** |
+| Execute with a payload (PowerShell analysed) | 331 | 344 | **313** |
 
-The 2.10.2 column was taken on 2026-09-18 from the published `.deb`, on the same host and
-Node version as the 2.10.1 column, so the two compare directly. **p99 is not in this table
-and matters:** 2.3–2.9 ms for the cheap scenarios, because a ledger checkpoint is real work
-that has to happen somewhere. The headline figure on cairnetp.com is a p50 and says so.
+Every column was taken from the published `.deb` on the same host and Node version, so they
+compare directly. **p99 is not in this table and matters:** 2.1–2.4 ms for the cheap scenarios
+in the 2.10.7 run, because a ledger checkpoint is real work that has to happen somewhere. The
+headline figure on cairnetp.com is a p50 and says so.
+
+**Why 2.10.7 was re-measured rather than carried forward.** 2.10.3 through 2.10.6 reused the
+2.10.2 column, on the stated grounds that the gate path was untouched. 2.10.7 touched it: the
+security fix in that release added the application-name argument to the payload the gate
+reads, so the reasoning expired and the number had to be taken again.
+
+**The 2.10.7 column sits about 10 per cent below 2.10.2, and that is not claimed as an
+improvement.** The gap is within what host state explains, and nothing in 2.10.7 targets gate
+cost. What the re-take establishes is that changing the gate path did not regress it. If you
+re-take it and get the 2.10.2 numbers instead, that is a consistent result, not a conflicting
+one.
 
 Raw: [`results/gate-2.10.1-shipped-2026-09-16.json`](results/gate-2.10.1-shipped-2026-09-16.json),
 [`results/gate-unreleased-after-fix-2026-09-16.json`](results/gate-unreleased-after-fix-2026-09-16.json)
-and [`results/gate-2.10.2-shipped-2026-09-18.json`](results/gate-2.10.2-shipped-2026-09-18.json).
+[`results/gate-2.10.2-shipped-2026-09-18.json`](results/gate-2.10.2-shipped-2026-09-18.json)
+and [`results/gate-2.10.7-shipped-2026-09-21.json`](results/gate-2.10.7-shipped-2026-09-21.json).
 
 ### The published figure did not hold for 2.10.1, and this is how that was found
 
