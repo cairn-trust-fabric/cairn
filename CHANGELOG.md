@@ -42,7 +42,7 @@ CAIRN's own interface only ever sends a valid answer, so no refusal of yours was
 
 ### Removed
 
-- **A browser screenshot tool that never worked.** It could not find the key it needed, so it failed on every call and never sent anything. It has been removed rather than repaired.
+- **A browser screenshot tool that never worked.** It looked for a setting that does not exist, so every call failed before it reached a model provider. It has been removed rather than repaired.
 - **Unused background features.** A setting for running scripts unattended from a folder had no effect when switched on, because the code it controlled was never started. That code, and a Downloads folder watcher beside it, have been removed.
 
 ### What you will notice
