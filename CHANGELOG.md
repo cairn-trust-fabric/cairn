@@ -6,6 +6,55 @@ Versions are set only by `node scripts/version.js`, which is the single source o
 `package.json`, `src/version.js` and the installer names. `npm run build` refuses
 to package a version that has no section here — see `scripts/check-version.js`.
 
+## [2.10.8] - 2026-09-21
+
+**A security release. If you run CAIRN 2.10.7 or earlier, update. It matters most on Windows with a cloud API key configured.**
+
+We added tests to three statements in our own claims register that had none behind them. Two of the three turned out not to be true, and following them found four security problems in 2.10.7. All four are fixed here.
+
+### Security fixes
+
+**CAIRN could send a picture of your desktop to a cloud AI provider without asking you.**
+
+The desktop screenshot analysis tool was treated as a harmless read. It ran without an approval prompt, and it contacted the cloud provider directly, so CAIRN's egress policy never saw it. On Windows, with a cloud API key configured, a conversation could capture your screen and send it off your machine. That includes a conversation steered by content CAIRN had been asked to read.
+
+It now asks first under the default policy. If your organisation sets its own egress policy, screenshots are refused until that policy explicitly allows them.
+
+**Recalled memories were sent to the cloud without the check your policy promised.**
+
+When the conversation pillar runs on a cloud model, CAIRN includes relevant memories in what it sends. The default egress policy says memory goes to the cloud only with your consent. That check never happened, because CAIRN did not recognise the memories as memory. They were treated as ordinary conversation.
+
+CAIRN now recognises recalled memory wherever it appears, and under the default policy you are asked before it leaves. This affected only installations with the conversation pillar assigned to a cloud model.
+
+**A scheduled script you had approved could be changed and keep running without you.**
+
+Approval was tied to the script's name, so an edit after approval did not need a new one. Approval is now tied to the script's exact content. A changed script stops running on its schedule until you approve the change. Scripts you approved before this release are pinned to their current content the first time they run after you update.
+
+**An approval answer CAIRN did not recognise was treated as a yes.**
+
+CAIRN's own interface only ever sends a valid answer, so no refusal of yours was affected. Another program on your machine talking to CAIRN directly could have had an unrecognised reply accepted as approval, and recorded as one. Anything other than a clear approval is now a refusal.
+
+### Also fixed
+
+- **In Offline Mode with no working local model, every chat message failed with a technical error.** This affected a new installation before any model was downloaded, or any time the local model service was stopped. CAIRN now says plainly that it could not route the request and that nothing was done.
+- **The Model Fleet tab said models run in graphics memory on computers that have none.** It now says what was actually measured, and its count of the models the filter would hide now matches what the filter hides.
+- **CAIRN's AI was told it had capabilities it did not have.** On a new installation with no local models, its instructions listed features that need one, and a WhatsApp feature that needs a separate connection. It is now told what each feature depends on, and to check before offering it.
+
+### Removed
+
+- **A browser screenshot tool that never worked.** It could not find the key it needed, so it failed on every call and never sent anything. It has been removed rather than repaired.
+- **Unused background features.** A setting for running scripts unattended from a folder had no effect when switched on, because the code it controlled was never started. That code, and a Downloads folder watcher beside it, have been removed.
+
+### What you will notice
+
+- If your conversation pillar uses a cloud model, you will be asked before recalled memories are sent.
+- The desktop screenshot tool asks before it runs. Under a custom egress policy it is refused until the policy allows screenshots.
+- A scheduled script that has been edited since you approved it stops and waits for your approval.
+
+### Still true, and still not built
+
+Nothing here is code-signed, there is no macOS build, and there is no auto-update. Verify what you downloaded with the published checksums and signature: `verify-release.cjs` in this release does it in one command.
+
 ## [2.10.7] - 2026-09-20
 
 **A security fix. If you are running 2.10.6 or earlier, update.**
