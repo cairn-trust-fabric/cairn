@@ -1,6 +1,6 @@
 # Checking CAIRN's numbers yourself
 
-**Written:** 2026-09-16 · **Revised:** 2026-09-28 · **Applies to:** CAIRN Trust Fabric 2.10.9
+**Written:** 2026-09-16 · **Revised:** 2026-09-28 · **Applies to:** CAIRN Trust Fabric 2.10.10
 
 This directory exists so that a figure CAIRN publishes is something you can
 re-take, not something you have to believe. It uses only what is public: the
@@ -18,7 +18,7 @@ If you do, open an issue with your results — including the ones that disagree.
 | --- | --- |
 | **Gate cost** — what one governance decision takes | **Published, reproducible.** Method, script and raw results below |
 | **Evidence verification** — that a record is what it says | **Published, reproducible** in a browser at [cairnetp.com/receipt.html](https://cairnetp.com/receipt.html), and by hand with the `VERIFY.md` inside every exported bundle |
-| **Release integrity** — that a download is unaltered | **Published, reproducible.** `verify-release.cjs` ships beside the 2.10.9 installers |
+| **Release integrity** — that a download is unaltered | **Published, reproducible.** `verify-release.cjs` ships beside the 2.10.10 installers |
 | **Detection rates** — false positives and false negatives of the static scanners | **Not published, because not measured.** No labelled corpus has been run against the scanners. The scanners are advisory, and the product says so; a detection rate will be published when one has been taken, not estimated |
 | **A threat model for the chain** | Stated where it applies: an unsigned, unanchored hash chain can be rewritten intact by anyone with write access who recomputes every later hash. [The receipt page](https://cairnetp.com/receipt.html#check) does it in front of you |
 
@@ -34,7 +34,7 @@ tree — including one extracted from a published installer, which is the point.
 
 Download an installer, `SHA256SUMS.txt`, `SHA256SUMS.txt.sig`, `release-pubkey.pem`
 and `verify-release.cjs` from the
-[2.10.9 release](https://github.com/cairn-trust-fabric/cairn/releases/tag/2.10.9),
+[2.10.10 release](https://github.com/cairn-trust-fabric/cairn/releases/tag/2.10.10),
 then:
 
 ```bash
@@ -42,7 +42,7 @@ node verify-release.cjs
 ```
 
 The `.deb` used for the published result below has SHA-256
-`d2137717698d9fe9197c89713b0ad4009e4eba1dcd3d66a1ccb44e470b486273`.
+`d4fb408afff8c90fc2644c0671711da30888bd104fd6d3ca4a59334f3629e8c6`.
 
 ### 2. Extract the application code
 
@@ -50,16 +50,16 @@ The JavaScript that makes every decision ships inside `app.asar`.
 
 ```bash
 # Linux, from the .deb
-ar x cairn-trust-fabric_2.10.9_amd64.deb && tar -xf data.tar.xz
+ar x cairn-trust-fabric_2.10.10_amd64.deb && tar -xf data.tar.xz
 
 # Windows 10/11 — the BUILT-IN tar reads .deb archives; call it by full path.
 # In Git Bash or MSYS, plain `tar` is GNU tar and fails with
 # "This does not look like a tar archive". Found by following these steps, 2026-09-18.
-/c/Windows/System32/tar.exe -xf cairn-trust-fabric_2.10.9_amd64.deb
+/c/Windows/System32/tar.exe -xf cairn-trust-fabric_2.10.10_amd64.deb
 /c/Windows/System32/tar.exe -xf data.tar.xz
 
 # then, on either
-npx @electron/asar extract "opt/CAIRN Trust Fabric/resources/app.asar" cairn-2.10.9
+npx @electron/asar extract "opt/CAIRN Trust Fabric/resources/app.asar" cairn-2.10.10
 ```
 
 ### 3. Measure
@@ -67,7 +67,7 @@ npx @electron/asar extract "opt/CAIRN Trust Fabric/resources/app.asar" cairn-2.1
 Node 22.5 or later (the ledger uses Node's built-in SQLite).
 
 ```bash
-node measure-gate.mjs --src cairn-2.10.9 --n 500 --json my-result.json
+node measure-gate.mjs --src cairn-2.10.10 --n 500 --json my-result.json
 ```
 
 It creates a temporary vault, writes nothing outside it except the `--json` file
@@ -81,13 +81,13 @@ purpose; the header of the script explains each.
 Host: Intel Core i9-12900K, 24 logical cores, 31.7 GB, Windows 11, Node 24.2.0.
 500 iterations per scenario after 20 warm-up. p50 in milliseconds.
 
-| Scenario | 2.10.1 as shipped | 2.10.2 as shipped | 2.10.7 as shipped | **2.10.8 as shipped, under load** | 2.10.7, same load | **2.10.9 as shipped, idle** | 2.10.8, re-taken idle |
-| --- | --- | --- | --- | --- | --- | --- | --- |
-| Read, no payload | 0.227 | 0.225 | 0.201 | **0.223** | 0.235 | **0.222** | 0.222 |
-| Write, with a path argument | **1.870** | 0.258 | 0.236 | **0.255** | 0.262 | **0.241** | 0.256 |
-| Execute, already CRITICAL | **1.888** | 0.285 | 0.262 | **0.277** | 0.317 | **0.276** | 0.274 |
-| Denied, unclassified tool | 0.234 | 0.240 | 0.204 | **0.219** | 0.251 | **0.224** | 0.230 |
-| Execute with a payload (PowerShell analysed) | 331 | 344 | 313 | **325** | 332 | **336** | 335 |
+| Scenario | 2.10.1 as shipped | 2.10.2 as shipped | 2.10.7 as shipped | **2.10.8 as shipped, under load** | 2.10.7, same load | **2.10.9 as shipped, idle** | 2.10.8, re-taken idle | **2.10.10 as shipped, idle** | 2.10.9, same idle session |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Read, no payload | 0.227 | 0.225 | 0.201 | **0.223** | 0.235 | **0.222** | 0.222 | **0.218** | 0.216 |
+| Write, with a path argument | **1.870** | 0.258 | 0.236 | **0.255** | 0.262 | **0.241** | 0.256 | **0.246** | 0.243 |
+| Execute, already CRITICAL | **1.888** | 0.285 | 0.262 | **0.277** | 0.317 | **0.276** | 0.274 | **0.276** | 0.273 |
+| Denied, unclassified tool | 0.234 | 0.240 | 0.204 | **0.219** | 0.251 | **0.224** | 0.230 | **0.228** | 0.225 |
+| Execute with a payload (PowerShell analysed) | 331 | 344 | 313 | **325** | 332 | **336** | 335 | **335** | 335 |
 
 Every column was taken from the published `.deb` on the same host and Node version, so they
 compare directly. **p99 is not in this table and matters:** 2.1–2.4 ms for the cheap scenarios
@@ -95,6 +95,12 @@ in the 2.10.7 run, because a ledger checkpoint is real work that has to happen s
 headline figure on cairnetp.com is a p50 and says so.
 
 **The 2.10.8 column was taken on a machine that was NOT idle, and says so.** Two other development sessions were running tests on the same host, so every figure in it is higher than it would be at rest, and it does not compare directly with the three columns to its left. To separate load from any real change, 2.10.7 was re-measured immediately before it under the same load: that is the last column. **Against its paired control, 2.10.8 is no slower in any scenario.** 2.10.8 changed the gate path (the desktop screenshot tool moved from the read class to the write class, and the egress gate now recognises recalled memory), so the figure had to be taken again rather than carried forward. What the paired run establishes is that those changes did not regress the gate; an idle re-take would be expected to land near the 2.10.7 column. p99 under load reached about 3.2 to 3.5 ms.
+
+**The 2.10.10 column was taken idle, beside a 2.10.9 re-take in the same session.** CPU
+averaged 3.5 per cent over ten seconds before the runs. 2.10.10 changed nothing the gate
+imports apart from the version stamp, so the figure could have been carried forward; it
+was re-taken because the headline names the release. The two agree within about one per
+cent at p50 in every scenario.
 
 **The 2.10.9 column was taken idle, beside a 2.10.8 re-take on the same idle machine.**
 CPU averaged 3.4 per cent over ten seconds before the runs; nothing else was building or
@@ -120,7 +126,7 @@ one.
 Raw: [`results/gate-2.10.1-shipped-2026-09-16.json`](results/gate-2.10.1-shipped-2026-09-16.json),
 [`results/gate-unreleased-after-fix-2026-09-16.json`](results/gate-unreleased-after-fix-2026-09-16.json)
 [`results/gate-2.10.2-shipped-2026-09-18.json`](results/gate-2.10.2-shipped-2026-09-18.json)
-[`results/gate-2.10.7-shipped-2026-09-21.json`](results/gate-2.10.7-shipped-2026-09-21.json), [`results/gate-2.10.8-shipped-2026-09-21.json`](results/gate-2.10.8-shipped-2026-09-21.json), [`results/gate-2.10.9-shipped-2026-09-28.json`](results/gate-2.10.9-shipped-2026-09-28.json) and its idle control [`results/gate-2.10.8-shipped-idle-2026-09-28.json`](results/gate-2.10.8-shipped-idle-2026-09-28.json) and its paired control [`results/gate-2.10.7-control-under-load-2026-09-21.json`](results/gate-2.10.7-control-under-load-2026-09-21.json).
+[`results/gate-2.10.7-shipped-2026-09-21.json`](results/gate-2.10.7-shipped-2026-09-21.json), [`results/gate-2.10.8-shipped-2026-09-21.json`](results/gate-2.10.8-shipped-2026-09-21.json), [`results/gate-2.10.9-shipped-2026-09-28.json`](results/gate-2.10.9-shipped-2026-09-28.json) and its idle control [`results/gate-2.10.8-shipped-idle-2026-09-28.json`](results/gate-2.10.8-shipped-idle-2026-09-28.json), [`results/gate-2.10.10-shipped-2026-09-28.json`](results/gate-2.10.10-shipped-2026-09-28.json) and its control [`results/gate-2.10.9-control-2026-09-28.json`](results/gate-2.10.9-control-2026-09-28.json) and its paired control [`results/gate-2.10.7-control-under-load-2026-09-21.json`](results/gate-2.10.7-control-under-load-2026-09-21.json).
 
 ### The published figure did not hold for 2.10.1, and this is how that was found
 

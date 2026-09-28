@@ -6,6 +6,30 @@ Versions are set only by `node scripts/version.js`, which is the single source o
 `package.json`, `src/version.js` and the installer names. `npm run build` refuses
 to package a version that has no section here — see `scripts/check-version.js`.
 
+## [2.10.10] - 2026-09-28
+
+**Three corrections to what CAIRN tells you on a new installation, found by installing 2.10.9 on a clean Windows machine.**
+
+### Fixed
+
+**Setup promised a model it could not install.**
+
+On a computer without Ollama, the fourth step of setup said the baseline model was *"Always Installed"* and would let CAIRN work *"immediately after setup"*. The first step of the same setup had just reported Ollama missing, and without Ollama no model can be downloaded, so the last step then reported that the baseline model had not been installed.
+
+The fourth step now says the baseline model is always part of the fleet. When Ollama was not found, it says so, and that nothing in the fleet can be downloaded until Ollama is installed. It uses the same check as the first step, so the two steps can no longer contradict each other.
+
+**Setup showed a CPU heading with nothing under it.**
+
+Some computers, including some virtual machines, do not report a processor name. Setup printed the heading and left the value blank. It now says *not established*, as the Model Fleet screen already did.
+
+**In Offline Mode, a failed request blamed a network problem that had not happened.**
+
+If CAIRN had no API key and no working local model, a request was answered with *"I could not reach the cloud router"*. In Offline Mode there is no cloud router to reach, so that pointed you at your network for no reason. The reply now gives the actual reason: no API key is configured, so the request could only be handled by the local model, and the local model could not be used. It is the same reason CAIRN was already showing in its status line.
+
+### Still true, and still not built
+
+Nothing here is code-signed, there is no macOS build, and there is no auto-update. Verify what you downloaded with the published checksums and signature: `verify-release.cjs` in this release does it in one command.
+
 ## [2.10.9] - 2026-09-28
 
 **CAIRN now recalls earlier conversations when they are relevant, which it has not been doing. Windows no longer asks for firewall access the first time CAIRN starts.**
