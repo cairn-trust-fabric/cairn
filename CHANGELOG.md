@@ -6,6 +6,34 @@ Versions are set only by `node scripts/version.js`, which is the single source o
 `package.json`, `src/version.js` and the installer names. `npm run build` refuses
 to package a version that has no section here — see `scripts/check-version.js`.
 
+## [2.10.11] - 2026-09-28
+
+**A security release. If you run CAIRN 2.10.10 or earlier, update.**
+
+### Security fix
+
+**An action by CAIRN's AI that you approved could widen what CAIRN sends off your computer, including secrets.**
+
+CAIRN keeps its own settings in a folder under your user profile: the policy that decides what may be sent to cloud AI providers, together with identity, approvals, keys, licence and records. The AI's file tools could read and write anywhere in your profile, and that included this folder. The policy file in it replaces CAIRN's default policy, and a secret such as an API key was refused only because the default said so. So if the AI asked to change that file and you approved the request, a later request could send a secret to a cloud provider.
+
+Three changes close this:
+
+- **Anything CAIRN recognises as a secret is refused, whatever the policy file says,** at every destination. CAIRN recognises known key and token formats and long random-looking strings; an ordinary password it cannot tell from text is not recognised, and this change does not alter that. CAIRN's own stored data is never sent to a cloud provider either. The policy file can no longer be used to let either out, however it came to be written.
+- **The AI's file tools can no longer read or change CAIRN's settings folder.** Saved scripts, uploads, scratch files and your Knowledge folder remain available to it, as before.
+- **A request that names that folder, or one of CAIRN's policy files, is refused outright** rather than put to you for approval. That includes a command that would change the file by some other route.
+
+CAIRN recognises that folder and those files by name. A command deliberately built to disguise them would not be recognised, which is why recognised secrets are also refused in code rather than by the file.
+
+The policy file can still loosen what CAIRN asks you about, as described in the 2.10.8 notes. Only recognised secrets and CAIRN's own stored data are now placed beyond its reach.
+
+### What you will notice
+
+- If you ask CAIRN's AI to show or edit its own settings files, it will refuse. You can still open and edit them yourself.
+
+### Still true, and still not built
+
+CAIRN's controls run on your computer, as your user account, alongside the AI they govern. This release takes the files that govern the AI out of its reach; it does not move the controls onto a separate, independent system. Nothing here is code-signed, there is no macOS build, and there is no auto-update. Verify what you downloaded with the published checksums and signature: `verify-release.cjs` in this release does it in one command.
+
 ## [2.10.10] - 2026-09-28
 
 **Three corrections to what CAIRN tells you on a new installation, found by installing 2.10.9 on a clean Windows machine.**
