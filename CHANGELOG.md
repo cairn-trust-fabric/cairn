@@ -6,6 +6,41 @@ Versions are set only by `node scripts/version.js`, which is the single source o
 `package.json`, `src/version.js` and the installer names. `npm run build` refuses
 to package a version that has no section here — see `scripts/check-version.js`.
 
+## [2.10.9] - 2026-09-28
+
+**CAIRN now recalls earlier conversations when they are relevant, which it has not been doing. Windows no longer asks for firewall access the first time CAIRN starts.**
+
+### Fixed
+
+**Automatic memory recall found almost nothing.**
+
+Before each reply, CAIRN searches its memory for earlier conversations related to your message. That search looked for your entire message as one exact phrase, so a stored conversation was found only if it contained everything you had just typed, word for word and in order. In practice that almost never happens, so automatic recall almost never recalled anything. Memory the AI searched for itself, with short keyword searches, was not affected.
+
+A question such as *"what did we decide about SQLite?"* now finds the conversation where that was decided. Each meaningful word is matched on its own, common words such as *what* and *about* are ignored, and results are ranked by how many of your words they share and how unusual those words are. A phrase you put in double quotes is still matched exactly. Identical memories are shown once rather than filling every slot, and a memory is no longer ranked higher simply because it was recalled before, which would otherwise have let a few memories crowd out the relevant one within weeks.
+
+Words are matched as written, so *script* does not find *scripts*.
+
+**Windows asked for firewall permission the first time CAIRN started.**
+
+Before starting, CAIRN checks that its port is free. That check asked Windows to accept connections from the network, which is what raised the prompt. CAIRN never needed that access: it serves only this computer unless you configure otherwise. The check now looks only on this computer and asks Windows for nothing. If you saw the prompt, **Cancel was the right answer.**
+
+**A second copy of CAIRN was not recognised as CAIRN (Windows, since 2.10.2).**
+
+Starting CAIRN while it was already running should tell you it is already running and where to open it. On Windows since 2.10.2 the same check did not notice the running copy, so you saw a general message that something else was using the port instead. It is recognised again.
+
+**The installer contained four tools that belong to us, not to you.**
+
+They were the program we use to issue licences, two related tools, and the page we use to count downloads of CAIRN. CAIRN never ran any of them, and the licence tool cannot issue a licence without our signing key, which stays with us and is not in the installer. They were included by a packaging rule that took everything in one folder. They are removed, and a test now checks the built installer for them.
+
+### What you will notice
+
+- If your conversation pillar uses a cloud model, **you will be asked about sending recalled memories far more often than before.** That consent step has existed since 2.10.8, but until this release there was rarely anything recalled for it to ask about.
+- On Windows, no firewall prompt when CAIRN first starts.
+
+### Still true, and still not built
+
+Nothing here is code-signed, there is no macOS build, and there is no auto-update. Verify what you downloaded with the published checksums and signature: `verify-release.cjs` in this release does it in one command.
+
 ## [2.10.8] - 2026-09-21
 
 **A security release. If you run CAIRN 2.10.7 or earlier, update. It matters most on Windows with a cloud API key configured.**
