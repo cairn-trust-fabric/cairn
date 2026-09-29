@@ -6,6 +6,24 @@ Versions are set only by `node scripts/version.js`, which is the single source o
 `package.json`, `src/version.js` and the installer names. `npm run build` refuses
 to package a version that has no section here — see `scripts/check-version.js`.
 
+## [2.10.14] - 2026-09-29
+
+**First-run setup no longer promises downloads it has just said cannot happen.**
+
+### Fixed
+
+**Step 4 of first-run setup contradicted itself when Ollama was missing.**
+
+When Ollama is not installed, CAIRN cannot download any model. Step 4 of first-run setup said so, in a banner above the proposed fleet, and then every model card beneath that banner said "Will Download".
+
+The cards now read the same check as the banner. With Ollama missing, a model that is not installed says "Needs Ollama". With Ollama installed, the cards say "Already Installed" or "Will Download", as before. Found by walking first-run setup on a clean test machine for 2.10.13, and checked fixed the same way for 2.10.14. That test machine has no internet access and no graphics card, which is why it always shows the Ollama-missing screen; it is not representative of a computer that runs CAIRN, and a walk there shows only what the screens say, not how CAIRN performs.
+
+Nothing the governance gate runs changed in this release. The figure on our website names the release it describes, so it was re-taken against 2.10.14 beside 2.10.13: the same 0.22–0.28 ms per decision that runs no code, level with 2.10.13 within the variation. That was measured on our development machine, not on the test machine above.
+
+### Still true, and still not built
+
+CAIRN's controls run on your computer, as your user account, alongside the AI they govern. Nothing here is code-signed, there is no macOS build, and there is no auto-update. Verify what you downloaded with the published checksums and signature: `verify-release.cjs` in this release does it in one command.
+
 ## [2.10.13] - 2026-09-29
 
 **The rest of the time 2.10.11 added to each of CAIRN's decisions is recovered.**
