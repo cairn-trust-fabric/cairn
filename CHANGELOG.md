@@ -6,6 +6,29 @@ Versions are set only by `node scripts/version.js`, which is the single source o
 `package.json`, `src/version.js` and the installer names. `npm run build` refuses
 to package a version that has no section here — see `scripts/check-version.js`.
 
+## [2.10.13] - 2026-09-29
+
+**The rest of the time 2.10.11 added to each of CAIRN's decisions is recovered.**
+
+### Fixed
+
+**2.10.12 left some governance decisions about 0.01 ms slower than 2.10.10.**
+
+2.10.11 added a security check to every decision: CAIRN refuses any action that names its own settings folder. 2.10.12 recovered most of the time that check cost, and said plainly that it had not recovered all of it: two of the four kinds of decision we measure were still about 0.01 ms slower than in 2.10.10.
+
+We measured where that time went. Half of what the check still cost was looking up the location of the settings folder, again, on every decision. That location does not change while CAIRN runs, so it is now looked up once. The check also no longer makes a lower-case copy of every action's text before comparing it.
+
+Measured with the same published method on an idle machine, beside 2.10.10 and 2.10.12 in the same session, each measured twice in turn:
+
+- Every difference between 2.10.13 and 2.10.10 is now smaller than the difference between two runs of 2.10.10 itself. We describe that as level with 2.10.10 within the variation, not as faster.
+- The figure on our website is now 0.22–0.28 ms.
+
+What the check recognises, and what it refuses, is unchanged.
+
+### Still true, and still not built
+
+CAIRN's controls run on your computer, as your user account, alongside the AI they govern. Nothing here is code-signed, there is no macOS build, and there is no auto-update. Verify what you downloaded with the published checksums and signature: `verify-release.cjs` in this release does it in one command.
+
 ## [2.10.12] - 2026-09-29
 
 **Most of the time 2.10.11 added to each of CAIRN's decisions is recovered.**
