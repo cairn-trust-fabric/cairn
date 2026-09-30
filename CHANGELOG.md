@@ -6,6 +6,30 @@ Versions are set only by `node scripts/version.js`, which is the single source o
 `package.json`, `src/version.js` and the installer names. `npm run build` refuses
 to package a version that has no section here — see `scripts/check-version.js`.
 
+## [2.10.16] - 2026-09-30
+
+**The memory compiler's relationship extraction says what it did, and memory names projects by name.**
+
+### Fixed
+
+**Relationship extraction recorded nothing, and said nothing.** When 2.10.15's memory compiler ran, it extracted the entities in a note but stored no relationships between them, and logged nothing. We captured the models' replies to find out why. Every model we tried returned relationships, so the stage was not simply broken; but an empty reply, a reply without the expected fields and a reply with no list at all were each silent, so why a run stored none could not be known afterwards. Every outcome is now logged, with the reason and the start of the reply whenever none are stored.
+
+**A model could invent entities through a relationship.** One model related five things it had made up, such as "telemetry_data" and "version_11", and each would have been stored as a new entity in the knowledge graph. A relationship is now kept only between entities that were actually extracted from the note, and the refused ones are logged.
+
+**Episodes showed their project as an identifier.** Recall, the memory search tool and the list of recent episodes showed each episode's project as a long identifier, while a compiled note beside them showed the project's name, so nothing told a model they were the same project. Episodes now show the name, and an episode's file in the vault records the name as well as the identifier.
+
+### How it was tested
+
+On the developer's own desktop, which has internet access, a graphics card and an NVIDIA DGX Spark on the local network. Relationships were captured from `qwen2.5:7b`, `qwen3.8` and `qwen3.5:122b` on the Spark. After the fix, the compiler shipped in this release, running on this release's own runtime, compiled five episodes with `qwen2.5:7b`: it wrote one note, stored three relationships and refused six, naming each. A recall question then showed its episodes under the project's name and was answered correctly.
+
+The installer and first-run setup were also walked on a clean test machine that has no internet access and no graphics card. That shows the screens and that setup completes; it is not representative of a computer running CAIRN, and the memory compiler does not run there.
+
+**The governance gate's figure stays 0.22–0.29 ms** per decision that runs no code. Nothing the gate runs changed; it was re-taken because the figure names the release, on the developer's desktop beside 2.10.15 in the same session, and the two are level.
+
+### Still true, and still not built
+
+CAIRN's controls run on your computer, as your user account, alongside the AI they govern. Nothing here is code-signed, there is no macOS build, and there is no auto-update. Verify what you downloaded with the published checksums and signature: `verify-release.cjs` in this release does it in one command.
+
 ## [2.10.15] - 2026-09-30
 
 **CAIRN's memory compiler runs for the first time, and "what did we decide" questions can read what it writes.**

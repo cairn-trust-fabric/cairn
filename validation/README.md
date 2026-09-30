@@ -1,6 +1,6 @@
 # Checking CAIRN's numbers yourself
 
-**Written:** 2026-09-16 · **Revised:** 2026-09-30 · **Applies to:** CAIRN Trust Fabric 2.10.15
+**Written:** 2026-09-16 · **Revised:** 2026-09-30 · **Applies to:** CAIRN Trust Fabric 2.10.16
 
 This directory exists so that a figure CAIRN publishes is something you can
 re-take, not something you have to believe. It uses only what is public: the
@@ -18,7 +18,7 @@ If you do, open an issue with your results — including the ones that disagree.
 | --- | --- |
 | **Gate cost** — what one governance decision takes | **Published, reproducible.** Method, script and raw results below |
 | **Evidence verification** — that a record is what it says | **Published, reproducible** in a browser at [cairnetp.com/receipt.html](https://cairnetp.com/receipt.html), and by hand with the `VERIFY.md` inside every exported bundle |
-| **Release integrity** — that a download is unaltered | **Published, reproducible.** `verify-release.cjs` ships beside the 2.10.15 installers |
+| **Release integrity** — that a download is unaltered | **Published, reproducible.** `verify-release.cjs` ships beside the 2.10.16 installers |
 | **Detection rates** — false positives and false negatives of the static scanners | **Not published, because not measured.** No labelled corpus has been run against the scanners. The scanners are advisory, and the product says so; a detection rate will be published when one has been taken, not estimated |
 | **A threat model for the chain** | Stated where it applies: an unsigned, unanchored hash chain can be rewritten intact by anyone with write access who recomputes every later hash. [The receipt page](https://cairnetp.com/receipt.html#check) does it in front of you |
 
@@ -34,7 +34,7 @@ tree — including one extracted from a published installer, which is the point.
 
 Download an installer, `SHA256SUMS.txt`, `SHA256SUMS.txt.sig`, `release-pubkey.pem`
 and `verify-release.cjs` from the
-[2.10.15 release](https://github.com/cairn-trust-fabric/cairn/releases/tag/2.10.15),
+[2.10.16 release](https://github.com/cairn-trust-fabric/cairn/releases/tag/2.10.16),
 then:
 
 ```bash
@@ -42,7 +42,7 @@ node verify-release.cjs
 ```
 
 The `.deb` used for the published result below has SHA-256
-`b860442477f701ccba641f268f23f2c27a9fe4a499388e688d043a37900e14d0`.
+`05e7e91bc5b68ff8daac7a10cb596afff78fbd4641c4c6df3482d228d34ef83d`.
 
 ### 2. Extract the application code
 
@@ -50,16 +50,16 @@ The JavaScript that makes every decision ships inside `app.asar`.
 
 ```bash
 # Linux, from the .deb
-ar x cairn-trust-fabric_2.10.15_amd64.deb && tar -xf data.tar.xz
+ar x cairn-trust-fabric_2.10.16_amd64.deb && tar -xf data.tar.xz
 
 # Windows 10/11 — the BUILT-IN tar reads .deb archives; call it by full path.
 # In Git Bash or MSYS, plain `tar` is GNU tar and fails with
 # "This does not look like a tar archive". Found by following these steps, 2026-09-18.
-/c/Windows/System32/tar.exe -xf cairn-trust-fabric_2.10.15_amd64.deb
+/c/Windows/System32/tar.exe -xf cairn-trust-fabric_2.10.16_amd64.deb
 /c/Windows/System32/tar.exe -xf data.tar.xz
 
 # then, on either
-npx @electron/asar extract "opt/CAIRN Trust Fabric/resources/app.asar" cairn-2.10.15
+npx @electron/asar extract "opt/CAIRN Trust Fabric/resources/app.asar" cairn-2.10.16
 ```
 
 ### 3. Measure
@@ -67,7 +67,7 @@ npx @electron/asar extract "opt/CAIRN Trust Fabric/resources/app.asar" cairn-2.1
 Node 22.5 or later (the ledger uses Node's built-in SQLite).
 
 ```bash
-node measure-gate.mjs --src cairn-2.10.15 --n 500 --json my-result.json
+node measure-gate.mjs --src cairn-2.10.16 --n 500 --json my-result.json
 ```
 
 It creates a temporary vault, writes nothing outside it except the `--json` file
@@ -81,13 +81,13 @@ purpose; the header of the script explains each.
 Host: Intel Core i9-12900K, 24 logical cores, 31.7 GB, Windows 11, Node 24.2.0.
 500 iterations per scenario after 20 warm-up. p50 in milliseconds.
 
-| Scenario | 2.10.1 as shipped | 2.10.2 as shipped | 2.10.7 as shipped | **2.10.8 as shipped, under load** | 2.10.7, same load | **2.10.9 as shipped, idle** | 2.10.8, re-taken idle | **2.10.10 as shipped, idle** | 2.10.9, same idle session | **2.10.11 as shipped, idle** | 2.10.10, same session | **2.10.12 as shipped, idle** | 2.10.10, same session | 2.10.11, same session | **2.10.13 as shipped, idle, two runs** | 2.10.10, same session | 2.10.12, same session | **2.10.14 as shipped, light load, three runs** | 2.10.13, same session | **2.10.15 as shipped, light load, three runs** | 2.10.14, same session |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| Read, no payload | 0.227 | 0.225 | 0.201 | **0.223** | 0.235 | **0.222** | 0.222 | **0.218** | 0.216 | **0.249** | 0.217 | **0.230** | 0.218 | 0.245 | **0.222 / 0.222** | 0.214 / 0.221 | 0.224 / 0.231 | **0.218 / 0.221 / 0.221** | 0.226 / 0.218 / 0.224 | **0.220 / 0.227 / 0.225** | 0.221 / 0.225 / 0.224 |
-| Write, with a path argument | **1.870** | 0.258 | 0.236 | **0.255** | 0.262 | **0.241** | 0.256 | **0.246** | 0.243 | **0.270** | 0.248 | **0.258** | 0.246 | 0.271 | **0.249 / 0.251** | 0.248 / 0.254 | 0.253 / 0.257 | **0.250 / 0.256 / 0.250** | 0.257 / 0.246 / 0.248 | **0.257 / 0.258 / 0.255** | 0.250 / 0.259 / 0.249 |
-| Execute, already CRITICAL | **1.888** | 0.285 | 0.262 | **0.277** | 0.317 | **0.276** | 0.274 | **0.276** | 0.273 | **0.299** | 0.279 | **0.276** | 0.275 | 0.301 | **0.281 / 0.280** | 0.271 / 0.281 | 0.290 / 0.279 | **0.274 / 0.278 / 0.279** | 0.281 / 0.277 / 0.274 | **0.285 / 0.287 / 0.285** | 0.280 / 0.290 / 0.291 |
-| Denied, unclassified tool | 0.234 | 0.240 | 0.204 | **0.219** | 0.251 | **0.224** | 0.230 | **0.228** | 0.225 | **0.244** | 0.218 | **0.229** | 0.226 | 0.242 | **0.239 / 0.235** | 0.224 / 0.237 | 0.227 / 0.234 | **0.224 / 0.227 / 0.225** | 0.228 / 0.222 / 0.223 | **0.224 / 0.227 / 0.228** | 0.228 / 0.236 / 0.233 |
-| Execute with a payload (PowerShell analysed) | 331 | 344 | 313 | **325** | 332 | **336** | 335 | **335** | 335 | **343** | 340 | **339** | 337 | 336 | **343 / 347** | 339 / 344 | 345 / 343 | **339 / 337 / 335** | 339 / 340 / 335 | **345 / 345 / 351** | 346 / 352 / 354 |
+| Scenario | 2.10.1 as shipped | 2.10.2 as shipped | 2.10.7 as shipped | **2.10.8 as shipped, under load** | 2.10.7, same load | **2.10.9 as shipped, idle** | 2.10.8, re-taken idle | **2.10.10 as shipped, idle** | 2.10.9, same idle session | **2.10.11 as shipped, idle** | 2.10.10, same session | **2.10.12 as shipped, idle** | 2.10.10, same session | 2.10.11, same session | **2.10.13 as shipped, idle, two runs** | 2.10.10, same session | 2.10.12, same session | **2.10.14 as shipped, light load, three runs** | 2.10.13, same session | **2.10.15 as shipped, light load, three runs** | 2.10.14, same session | **2.10.16 as shipped, light load, three runs** | 2.10.15, same session |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Read, no payload | 0.227 | 0.225 | 0.201 | **0.223** | 0.235 | **0.222** | 0.222 | **0.218** | 0.216 | **0.249** | 0.217 | **0.230** | 0.218 | 0.245 | **0.222 / 0.222** | 0.214 / 0.221 | 0.224 / 0.231 | **0.218 / 0.221 / 0.221** | 0.226 / 0.218 / 0.224 | **0.220 / 0.227 / 0.225** | 0.221 / 0.225 / 0.224 | **0.226 / 0.226 / 0.221** | 0.224 / 0.227 / 0.225 |
+| Write, with a path argument | **1.870** | 0.258 | 0.236 | **0.255** | 0.262 | **0.241** | 0.256 | **0.246** | 0.243 | **0.270** | 0.248 | **0.258** | 0.246 | 0.271 | **0.249 / 0.251** | 0.248 / 0.254 | 0.253 / 0.257 | **0.250 / 0.256 / 0.250** | 0.257 / 0.246 / 0.248 | **0.257 / 0.258 / 0.255** | 0.250 / 0.259 / 0.249 | **0.260 / 0.254 / 0.259** | 0.260 / 0.254 / 0.256 |
+| Execute, already CRITICAL | **1.888** | 0.285 | 0.262 | **0.277** | 0.317 | **0.276** | 0.274 | **0.276** | 0.273 | **0.299** | 0.279 | **0.276** | 0.275 | 0.301 | **0.281 / 0.280** | 0.271 / 0.281 | 0.290 / 0.279 | **0.274 / 0.278 / 0.279** | 0.281 / 0.277 / 0.274 | **0.285 / 0.287 / 0.285** | 0.280 / 0.290 / 0.291 | **0.285 / 0.293 / 0.277** | 0.289 / 0.285 / 0.290 |
+| Denied, unclassified tool | 0.234 | 0.240 | 0.204 | **0.219** | 0.251 | **0.224** | 0.230 | **0.228** | 0.225 | **0.244** | 0.218 | **0.229** | 0.226 | 0.242 | **0.239 / 0.235** | 0.224 / 0.237 | 0.227 / 0.234 | **0.224 / 0.227 / 0.225** | 0.228 / 0.222 / 0.223 | **0.224 / 0.227 / 0.228** | 0.228 / 0.236 / 0.233 | **0.228 / 0.235 / 0.230** | 0.228 / 0.225 / 0.230 |
+| Execute with a payload (PowerShell analysed) | 331 | 344 | 313 | **325** | 332 | **336** | 335 | **335** | 335 | **343** | 340 | **339** | 337 | 336 | **343 / 347** | 339 / 344 | 345 / 343 | **339 / 337 / 335** | 339 / 340 / 335 | **345 / 345 / 351** | 346 / 352 / 354 | **347 / 346 / 345** | 346 / 345 / 348 |
 
 Every column was taken from the published `.deb` on the same host and Node version, so they
 compare directly. **p99 is not in this table and matters:** 2.1–2.4 ms for the cheap scenarios
@@ -95,6 +95,15 @@ in the 2.10.7 run, because a ledger checkpoint is real work that has to happen s
 headline figure on cairnetp.com is a p50 and says so.
 
 **The 2.10.8 column was taken on a machine that was NOT idle, and says so.** Two other development sessions were running tests on the same host, so every figure in it is higher than it would be at rest, and it does not compare directly with the three columns to its left. To separate load from any real change, 2.10.7 was re-measured immediately before it under the same load: that is the last column. **Against its paired control, 2.10.8 is no slower in any scenario.** 2.10.8 changed the gate path (the desktop screenshot tool moved from the read class to the write class, and the egress gate now recognises recalled memory), so the figure had to be taken again rather than carried forward. What the paired run establishes is that those changes did not regress the gate; an idle re-take would be expected to land near the 2.10.7 column. p99 under load reached about 3.2 to 3.5 ms.
+
+**2.10.16 changes nothing the gate runs, and is level with 2.10.15.** It changed the memory
+compiler and how episodes are shown; re-taken because the headline names the release, with
+2.10.16 and 2.10.15 run in turn, three times each, under light load (CPU 3 to 12 per cent).
+Every difference is inside 2.10.15's own three-run spread: read -0.002 ms (spread 0.003),
+write +0.001 (0.006), already-CRITICAL -0.003 (0.005), denied +0.003 (0.005). Headline
+unchanged at 0.22–0.29 ms. Taken on the development host above, never in the Windows
+Sandbox used to walk the installer, which has no internet access and no GPU and is not
+representative of a machine running CAIRN.
 
 **2.10.15 is level with 2.10.14; the headline moves to 0.22–0.29 ms because the host was
 busier, not because the release is slower.** 2.10.15 changed the memory module the ledger
@@ -177,7 +186,7 @@ one.
 Raw: [`results/gate-2.10.1-shipped-2026-09-16.json`](results/gate-2.10.1-shipped-2026-09-16.json),
 [`results/gate-unreleased-after-fix-2026-09-16.json`](results/gate-unreleased-after-fix-2026-09-16.json)
 [`results/gate-2.10.2-shipped-2026-09-18.json`](results/gate-2.10.2-shipped-2026-09-18.json)
-[`results/gate-2.10.7-shipped-2026-09-21.json`](results/gate-2.10.7-shipped-2026-09-21.json), [`results/gate-2.10.8-shipped-2026-09-21.json`](results/gate-2.10.8-shipped-2026-09-21.json), [`results/gate-2.10.9-shipped-2026-09-28.json`](results/gate-2.10.9-shipped-2026-09-28.json) and its idle control [`results/gate-2.10.8-shipped-idle-2026-09-28.json`](results/gate-2.10.8-shipped-idle-2026-09-28.json), [`results/gate-2.10.10-shipped-2026-09-28.json`](results/gate-2.10.10-shipped-2026-09-28.json) and its control [`results/gate-2.10.9-control-2026-09-28.json`](results/gate-2.10.9-control-2026-09-28.json), [`results/gate-2.10.11-shipped-2026-09-28.json`](results/gate-2.10.11-shipped-2026-09-28.json) and its control [`results/gate-2.10.10-control-2026-09-28.json`](results/gate-2.10.10-control-2026-09-28.json), [`results/gate-2.10.12-shipped-2026-09-29.json`](results/gate-2.10.12-shipped-2026-09-29.json) with controls [`results/gate-2.10.10-control-2026-09-29.json`](results/gate-2.10.10-control-2026-09-29.json) and [`results/gate-2.10.11-control-2026-09-29.json`](results/gate-2.10.11-control-2026-09-29.json), [`results/gate-2.10.13-shipped-2026-09-29-a.json`](results/gate-2.10.13-shipped-2026-09-29-a.json) and [`-b`](results/gate-2.10.13-shipped-2026-09-29-b.json) with controls [`results/gate-2.10.10-control-2026-09-29-13a.json`](results/gate-2.10.10-control-2026-09-29-13a.json), [`-13b`](results/gate-2.10.10-control-2026-09-29-13b.json), [`results/gate-2.10.12-control-2026-09-29-13a.json`](results/gate-2.10.12-control-2026-09-29-13a.json) and [`-13b`](results/gate-2.10.12-control-2026-09-29-13b.json), [`results/gate-2.10.14-shipped-2026-09-29-a.json`](results/gate-2.10.14-shipped-2026-09-29-a.json), [`-b`](results/gate-2.10.14-shipped-2026-09-29-b.json) and [`-c`](results/gate-2.10.14-shipped-2026-09-29-c.json) with controls [`results/gate-2.10.13-control-2026-09-29-a.json`](results/gate-2.10.13-control-2026-09-29-a.json), [`-b`](results/gate-2.10.13-control-2026-09-29-b.json) and [`-c`](results/gate-2.10.13-control-2026-09-29-c.json), [`results/gate-2.10.15-shipped-2026-09-30-a.json`](results/gate-2.10.15-shipped-2026-09-30-a.json), [`-b`](results/gate-2.10.15-shipped-2026-09-30-b.json) and [`-c`](results/gate-2.10.15-shipped-2026-09-30-c.json) with controls [`results/gate-2.10.14-control-2026-09-30-a.json`](results/gate-2.10.14-control-2026-09-30-a.json), [`-b`](results/gate-2.10.14-control-2026-09-30-b.json) and [`-c`](results/gate-2.10.14-control-2026-09-30-c.json), and 2.10.8's paired control [`results/gate-2.10.7-control-under-load-2026-09-21.json`](results/gate-2.10.7-control-under-load-2026-09-21.json).
+[`results/gate-2.10.7-shipped-2026-09-21.json`](results/gate-2.10.7-shipped-2026-09-21.json), [`results/gate-2.10.8-shipped-2026-09-21.json`](results/gate-2.10.8-shipped-2026-09-21.json), [`results/gate-2.10.9-shipped-2026-09-28.json`](results/gate-2.10.9-shipped-2026-09-28.json) and its idle control [`results/gate-2.10.8-shipped-idle-2026-09-28.json`](results/gate-2.10.8-shipped-idle-2026-09-28.json), [`results/gate-2.10.10-shipped-2026-09-28.json`](results/gate-2.10.10-shipped-2026-09-28.json) and its control [`results/gate-2.10.9-control-2026-09-28.json`](results/gate-2.10.9-control-2026-09-28.json), [`results/gate-2.10.11-shipped-2026-09-28.json`](results/gate-2.10.11-shipped-2026-09-28.json) and its control [`results/gate-2.10.10-control-2026-09-28.json`](results/gate-2.10.10-control-2026-09-28.json), [`results/gate-2.10.12-shipped-2026-09-29.json`](results/gate-2.10.12-shipped-2026-09-29.json) with controls [`results/gate-2.10.10-control-2026-09-29.json`](results/gate-2.10.10-control-2026-09-29.json) and [`results/gate-2.10.11-control-2026-09-29.json`](results/gate-2.10.11-control-2026-09-29.json), [`results/gate-2.10.13-shipped-2026-09-29-a.json`](results/gate-2.10.13-shipped-2026-09-29-a.json) and [`-b`](results/gate-2.10.13-shipped-2026-09-29-b.json) with controls [`results/gate-2.10.10-control-2026-09-29-13a.json`](results/gate-2.10.10-control-2026-09-29-13a.json), [`-13b`](results/gate-2.10.10-control-2026-09-29-13b.json), [`results/gate-2.10.12-control-2026-09-29-13a.json`](results/gate-2.10.12-control-2026-09-29-13a.json) and [`-13b`](results/gate-2.10.12-control-2026-09-29-13b.json), [`results/gate-2.10.14-shipped-2026-09-29-a.json`](results/gate-2.10.14-shipped-2026-09-29-a.json), [`-b`](results/gate-2.10.14-shipped-2026-09-29-b.json) and [`-c`](results/gate-2.10.14-shipped-2026-09-29-c.json) with controls [`results/gate-2.10.13-control-2026-09-29-a.json`](results/gate-2.10.13-control-2026-09-29-a.json), [`-b`](results/gate-2.10.13-control-2026-09-29-b.json) and [`-c`](results/gate-2.10.13-control-2026-09-29-c.json), [`results/gate-2.10.15-shipped-2026-09-30-a.json`](results/gate-2.10.15-shipped-2026-09-30-a.json), [`-b`](results/gate-2.10.15-shipped-2026-09-30-b.json) and [`-c`](results/gate-2.10.15-shipped-2026-09-30-c.json) with controls [`results/gate-2.10.14-control-2026-09-30-a.json`](results/gate-2.10.14-control-2026-09-30-a.json), [`-b`](results/gate-2.10.14-control-2026-09-30-b.json) and [`-c`](results/gate-2.10.14-control-2026-09-30-c.json), [`results/gate-2.10.16-shipped-2026-09-30-a.json`](results/gate-2.10.16-shipped-2026-09-30-a.json), [`-b`](results/gate-2.10.16-shipped-2026-09-30-b.json) and [`-c`](results/gate-2.10.16-shipped-2026-09-30-c.json) with controls [`results/gate-2.10.15-control-2026-09-30-a.json`](results/gate-2.10.15-control-2026-09-30-a.json), [`-b`](results/gate-2.10.15-control-2026-09-30-b.json) and [`-c`](results/gate-2.10.15-control-2026-09-30-c.json), and 2.10.8's paired control [`results/gate-2.10.7-control-under-load-2026-09-21.json`](results/gate-2.10.7-control-under-load-2026-09-21.json).
 
 ### The published figure did not hold for 2.10.1, and this is how that was found
 

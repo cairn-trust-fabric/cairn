@@ -1,0 +1,151 @@
+{
+  "measured_at": "2026-09-30T15:14:39.136Z",
+  "tool": "scripts/measure-gate.js",
+  "measured_against": {
+    "version": "2.10.16"
+  },
+  "iterations": 500,
+  "approvals_triggered": 0,
+  "host": {
+    "cpu": "12th Gen Intel(R) Core(TM) i9-12900K",
+    "logical_cores": 24,
+    "total_ram_gb": 31.7,
+    "platform": "win32",
+    "release": "10.0.26200",
+    "node": "v24.2.0"
+  },
+  "caveat": "Per-decision latency for ONE sequential caller. The per-second figures are 1/latency, not a throughput or concurrency measurement. The mandatory-approval path is excluded: it blocks on a human.",
+  "scenarios": [
+    {
+      "label": "read",
+      "n": 500,
+      "min": 0.1782000000000039,
+      "p50": 0.22569999999998913,
+      "p95": 0.49320000000000164,
+      "p99": 2.2794999999999845,
+      "max": 7.257200000000012,
+      "mean": 0.32206119999999994,
+      "note": "READ tool, no payload"
+    },
+    {
+      "label": "write",
+      "n": 500,
+      "min": 0.17320000000000846,
+      "p50": 0.25979999999998427,
+      "p95": 0.46289999999999054,
+      "p99": 2.384999999999991,
+      "max": 34.35390000000001,
+      "mean": 0.41774339999999743,
+      "note": "WRITE tool carrying a path argument"
+    },
+    {
+      "label": "execute_ast",
+      "n": 500,
+      "min": 0.3271999999997206,
+      "p50": 347.01249999998254,
+      "p95": 386.1565000000046,
+      "p99": 424.4390999999887,
+      "max": 1011.8832999999977,
+      "mean": 339.4149444,
+      "note": "EXECUTE with a payload - both AST analysers eligible"
+    },
+    {
+      "label": "execute_critical",
+      "n": 500,
+      "min": 0.18619999999646097,
+      "p50": 0.2848000000230968,
+      "p95": 0.5213999999978114,
+      "p99": 2.912400000001071,
+      "max": 37.1191000000108,
+      "mean": 0.46473660000093514,
+      "note": "EXECUTE already CRITICAL - AST skipped, cannot raise further"
+    },
+    {
+      "label": "denied",
+      "n": 500,
+      "min": 0.17560000001685694,
+      "p50": 0.22779999999329448,
+      "p95": 0.39949999999953434,
+      "p99": 2.2419000000227243,
+      "max": 9.095300000015413,
+      "mean": 0.328537000000244,
+      "note": "Unclassified tool name - denied before the expensive work"
+    }
+  ],
+  "components": [
+    {
+      "label": "resolveIdentity (warm)",
+      "n": 500,
+      "min": 0.0001999999803956598,
+      "p50": 0.00020000000949949026,
+      "p95": 0.0003000000142492354,
+      "p99": 0.0004000000189989805,
+      "max": 0.0010999999940395355,
+      "mean": 0.0002414000005228445
+    },
+    {
+      "label": "loadCorporatePolicy (warm)",
+      "n": 500,
+      "min": 0.00009999997564591467,
+      "p50": 0.00020000000949949026,
+      "p95": 0.0003000000142492354,
+      "p99": 0.00039999998989515007,
+      "max": 0.0009999999892897904,
+      "mean": 0.00021320000104606152
+    },
+    {
+      "label": "loadCorporatePolicy (forced re-read)",
+      "n": 200,
+      "min": 0.04070000001229346,
+      "p50": 0.04179999997722916,
+      "p95": 0.09619999999995343,
+      "p99": 0.12180000002263114,
+      "max": 0.14720000000670552,
+      "mean": 0.05184950000082608
+    },
+    {
+      "label": "assessRisk (pure, no I/O)",
+      "n": 500,
+      "min": 0.001500000013038516,
+      "p50": 0.0016999999934341758,
+      "p95": 0.002099999983329326,
+      "p99": 0.0033999999868683517,
+      "max": 0.07639999999082647,
+      "mean": 0.0020813999995589255
+    },
+    {
+      "label": "scanPowerShellAst (spawns powershell.exe)",
+      "n": 60,
+      "min": 0.0016000000177882612,
+      "p50": 344.9939000000013,
+      "p95": 372.4673999999941,
+      "p99": 408.007099999988,
+      "max": 408.007099999988,
+      "mean": 320.8760983333341
+    },
+    {
+      "label": "scanJavaScriptAst (parses in process)",
+      "n": 500,
+      "min": 0.0064999999885912985,
+      "p50": 0.010500000003958121,
+      "p95": 0.026400000002468005,
+      "p99": 0.10800000000745058,
+      "max": 0.22890000001643784,
+      "mean": 0.014522200000123121
+    },
+    {
+      "label": "appendDecision (ledger write)",
+      "n": 500,
+      "min": 0.06889999998384155,
+      "p50": 0.1309000000183005,
+      "p95": 0.19410000002244487,
+      "p99": 0.6343999999808148,
+      "max": 31.223400000017136,
+      "mean": 0.23360000000079162
+    }
+  ],
+  "cold": {
+    "resolveIdentity": 14.799700000003213,
+    "loadCorporatePolicy": 0.17630000002100132
+  }
+}
