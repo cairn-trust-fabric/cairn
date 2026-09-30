@@ -6,6 +6,40 @@ Versions are set only by `node scripts/version.js`, which is the single source o
 `package.json`, `src/version.js` and the installer names. `npm run build` refuses
 to package a version that has no section here — see `scripts/check-version.js`.
 
+## [2.10.15] - 2026-09-30
+
+**CAIRN's memory compiler runs for the first time, and "what did we decide" questions can read what it writes.**
+
+### Added
+
+**Memory consolidation now actually runs.** CAIRN has always shipped a memory compiler, meant to turn the episodes it records into knowledge notes and to let old memories weigh less over time. Nothing ever started it, so neither had happened in any release. It now runs after ten minutes idle, at most every twelve hours. It uses the fleet's reasoning model through the same governed path as a chat turn: placement across the machines you have declared, the queue, and the egress policy.
+
+**A compiled note says what it is.** Each note names the model that wrote it, the date and every episode it came from, and says it is a model-written summary. **Your recorded episodes are never archived or replaced.** They stay the record, and recall still finds them.
+
+**"What did we decide" questions now read compiled notes**, after the episodes, with each note labelled as a summary and the episodes named as the record wherever the two differ.
+
+### Fixed
+
+**Old memories never weighed less.** Recency decay was meant to halve an episode's weight every 45 days. It had never run, and its formula gave 0.37 at 45 days rather than 0.5. It now runs with the compiler, as a true half-life.
+
+**A compiled note in any answer had lost its label.** Notes are shortened before a model sees them, and a compiled note's "this is a summary" line came last, so it was always cut off. It now comes first.
+
+Before this release, the compiler as written would have found no episodes, sent memory to a model without the egress policy seeing it, and archived every episode it summarised out of recall. None of that ever shipped switched on. It is stated here because it would have, had the compiler simply been started.
+
+### How it was tested
+
+On the developer's own desktop, which has internet access, a graphics card and an NVIDIA DGX Spark on the local network: five recorded episodes became one accurate note, written by `qwen3.5:122b` on the Spark in about 10 to 14 minutes; the egress policy recorded that call as memory going to the local network and permitted it; and a "what did we decide" question was then answered correctly from the note. By default the egress policy asks before memory goes to a cloud model, and a background compile cannot answer, so it is refused there.
+
+The installer and first-run setup were also walked on a clean test machine that has no internet access and no graphics card. That shows the screens and that setup completes; it is not representative of a computer running CAIRN, and the compiler, which needs a model and ten idle minutes, does not run there.
+
+**The governance gate's figure is 0.22–0.29 ms** per decision that runs no code, measured on the developer's desktop beside 2.10.14 in the same session: level with it in every kind of decision. The top of the range is 0.01 ms higher than the 0.22–0.28 ms we published for 2.10.14 because the machine was busier this time, and 2.10.14, measured alongside, reached the same figure.
+
+**Not yet:** questions about code or your preferences do not read compiled notes; nothing merges duplicate episodes; and relationship extraction recorded none in our runs.
+
+### Still true, and still not built
+
+CAIRN's controls run on your computer, as your user account, alongside the AI they govern. Nothing here is code-signed, there is no macOS build, and there is no auto-update. Verify what you downloaded with the published checksums and signature: `verify-release.cjs` in this release does it in one command.
+
 ## [2.10.14] - 2026-09-29
 
 **First-run setup no longer promises downloads it has just said cannot happen.**
