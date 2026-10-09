@@ -6,6 +6,40 @@ Versions are set only by `node scripts/version.js`, which is the single source o
 `package.json`, `src/version.js` and the installer names. `npm run build` refuses
 to package a version that has no section here — see `scripts/check-version.js`.
 
+## [2.10.17] - 2026-10-10
+
+**A security release. Every earlier release's installed program could be used to run any script as Node.js.**
+
+### Security
+
+**The installed CAIRN program would run any script it was given, in every release up to and including 2.10.16.** CAIRN is built on Electron, which ships with switches ("fuses") that let its program be used as a plain Node.js interpreter. CAIRN left them at Electron's defaults. So anyone able to run commands on the machine, as any user, could run a script of their own with CAIRN's installed program by setting one environment variable, so that tools which trust programs by location or publisher saw CAIRN running rather than the script; could load code of their own into CAIRN as it starts, by setting another; and could attach a debugger to a running CAIRN, the process that holds its unlocked keys. Each needed the ability to run commands on the machine first, and none could be reached over the network. But it put a general interpreter, under CAIRN's name, on every machine CAIRN was installed on, beside a product whose purpose is governing what runs there.
+
+**All three are now switched off when the program is built, and every build reads them back and fails if they are not.** On Windows, Electron now also checks each of CAIRN's application files against the record made when it was built, as the file is loaded, and stops the program if it has been altered. The check happens when a file is read, not for the whole program at start: a file CAIRN has not yet loaded can be altered without stopping it from starting. Electron does not offer the check on Linux, so it is not claimed there.
+
+The one part of CAIRN that relied on the first switch, the check that generated JavaScript is syntactically valid, now parses the code inside CAIRN instead of starting a second copy of the program. It still never runs the code.
+
+If you are on 2.10.16 or earlier, installing this release over it closes this.
+
+### Fixed
+
+**The record of data sent to a model named the wrong part of CAIRN.** When one model served several parts of CAIRN, the record of what was sent to it named all of them, not the one that sent it. It now names the part that sent it.
+
+**A request in the first seconds after start could reach a reasoning model before CAIRN knew it reasoned.** CAIRN learns in the background, after it starts, which models think before they answer. A request made before that finished was treated as going to a model that does not, with no extra room for the thinking, so a large reasoning model could spend its whole allowance thinking and give no answer. Separately, every refresh of the model list after the first forgot this for models on your own machine, so the problem came back in ordinary use, not only at start. A request now waits, for at most ten seconds, until its own model has been checked, and a refresh no longer forgets.
+
+**Not fixed by this:** the extra room given for thinking is a fixed amount, and on the developer's NVIDIA DGX Spark it was not enough for the largest model tried (`qwen3.5:122b`) on harder questions. Those requests now get exactly what any other request gets; for that model, on those questions, that can still be no answer. How much room to give is a separate change.
+
+### How it was tested
+
+On the developer's own desktop, which has internet access and a graphics card: the Windows build started and served normally; started with the variable that used to turn it into Node.js and given a script, it did not run the script and started CAIRN instead. A copy with one byte of its start-up code changed refused to start, reporting the altered file. The Linux package was installed on a clean Debian system in a container: its switches read back off, it did not run a script the same way, every library resolved, and it started and served.
+
+The installer and first-run setup were also walked on a clean test machine that has no internet access and no graphics card. That shows the screens and that setup completes; it is not representative of a computer running CAIRN.
+
+**The governance gate's figure stays 0.22–0.29 ms** per decision that runs no code. Nothing the gate runs changed; it was re-taken because the figure names the release, on the developer's desktop beside 2.10.16 in the same session, and the two are level. This release's own runs fell between 0.22 and 0.28 ms; the range is not narrowed, because 2.10.16 measured alongside reached 0.29.
+
+### Still true, and still not built
+
+CAIRN's controls run on your computer, as your user account, alongside the AI they govern. Nothing here is code-signed, there is no macOS build, and there is no auto-update. Verify what you downloaded with the published checksums and signature: `verify-release.cjs` in this release does it in one command.
+
 ## [2.10.16] - 2026-09-30
 
 **The memory compiler's relationship extraction says what it did, and memory names projects by name.**
